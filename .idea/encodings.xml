@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="Encoding" defaultCharsetForPropertiesFiles="UTF-8">
+    <file url="file://$PROJECT_DIR$/cloud-api-commons/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/cloud-api-commons/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/cloud-auth/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/cloud-auth/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/crawler/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/crawler/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/gateway9527/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/gateway9527/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/sentiment-analysis/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/sentiment-analysis/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/test-thread/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/test-thread/src/main/resources" charset="UTF-8" />
+    <file url="PROJECT" charset="UTF-8" />
+  </component>
+</project>

@@ -1,0 +1,249 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wrc.cloud.dao.UserDao">
+
+    <resultMap type="com.wrc.cloud.entity.User" id="TUserMap">
+        <result property="uid" column="uid" jdbcType="VARCHAR"/>
+        <result property="username" column="username" jdbcType="VARCHAR"/>
+        <result property="password" column="password" jdbcType="VARCHAR"/>
+        <result property="gender" column="gender" jdbcType="INTEGER"/>
+        <result property="photo" column="photo" jdbcType="VARCHAR"/>
+        <result property="emai" column="emai" jdbcType="VARCHAR"/>
+        <result property="birthday" column="birthday" jdbcType="TIMESTAMP"/>
+        <result property="phoneNum" column="phone_num" jdbcType="INTEGER"/>
+        <result property="profile" column="profile" jdbcType="VARCHAR"/>
+        <result property="stat" column="stat" jdbcType="INTEGER"/>
+        <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+        <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
+        <result property="nickName" column="nick_name" jdbcType="VARCHAR"/>
+        <result property="qq" column="qq" jdbcType="VARCHAR"/>
+        <result property="wechat" column="wechat" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <!--查询单个-->
+    <select id="queryById" resultMap="TUserMap">
+        select
+          uid, username, password, gender, photo, emai, birthday, phone_num, profile, stat, create_time, update_time, nick_name, qq, wechat
+        from t_user
+        where uid = #{uid}
+    </select>
+
+    <!--查询单个-->
+    <select id="queryByUsername" resultMap="TUserMap">
+        select
+          uid, username, password, gender, photo, emai, birthday, phone_num, profile, stat, create_time, update_time, nick_name, qq, wechat
+        from t_user
+        where username = #{username}
+    </select>
+
+
+
+    <!--查询指定行数据-->
+    <select id="queryAllByLimit" resultMap="TUserMap">
+        select
+        uid, username, password, gender, photo, emai, birthday, phone_num, profile, stat, create_time, update_time,
+        nick_name, qq, wechat
+        from t_user
+        <where>
+            <if test="uid != null">
+                and uid = #{uid}
+            </if>
+            <if test="username != null and username != ''">
+                and username = #{username}
+            </if>
+            <if test="password != null and password != ''">
+                and password = #{password}
+            </if>
+            <if test="gender != null">
+                and gender = #{gender}
+            </if>
+            <if test="photo != null and photo != ''">
+                and photo = #{photo}
+            </if>
+            <if test="emai != null and emai != ''">
+                and emai = #{emai}
+            </if>
+            <if test="birthday != null">
+                and birthday = #{birthday}
+            </if>
+            <if test="phoneNum != null">
+                and phone_num = #{phoneNum}
+            </if>
+            <if test="profile != null and profile != ''">
+                and profile = #{profile}
+            </if>
+            <if test="stat != null">
+                and stat = #{stat}
+            </if>
+            <if test="createTime != null">
+                and create_time = #{createTime}
+            </if>
+            <if test="updateTime != null">
+                and update_time = #{updateTime}
+            </if>
+            <if test="nickName != null and nickName != ''">
+                and nick_name = #{nickName}
+            </if>
+            <if test="qq != null and qq != ''">
+                and qq = #{qq}
+            </if>
+            <if test="wechat != null and wechat != ''">
+                and wechat = #{wechat}
+            </if>
+        </where>
+        limit #{pageable.offset}, #{pageable.pageSize}
+    </select>
+
+    <!--统计总行数-->
+    <select id="count" resultType="java.lang.Long">
+        select count(1)
+        from t_user
+        <where>
+            <if test="uid != null">
+                and uid = #{uid}
+            </if>
+            <if test="username != null and username != ''">
+                and username = #{username}
+            </if>
+            <if test="password != null and password != ''">
+                and password = #{password}
+            </if>
+            <if test="gender != null">
+                and gender = #{gender}
+            </if>
+            <if test="photo != null and photo != ''">
+                and photo = #{photo}
+            </if>
+            <if test="emai != null and emai != ''">
+                and emai = #{emai}
+            </if>
+            <if test="birthday != null">
+                and birthday = #{birthday}
+            </if>
+            <if test="phoneNum != null">
+                and phone_num = #{phoneNum}
+            </if>
+            <if test="profile != null and profile != ''">
+                and profile = #{profile}
+            </if>
+            <if test="stat != null">
+                and stat = #{stat}
+            </if>
+            <if test="createTime != null">
+                and create_time = #{createTime}
+            </if>
+            <if test="updateTime != null">
+                and update_time = #{updateTime}
+            </if>
+            <if test="nickName != null and nickName != ''">
+                and nick_name = #{nickName}
+            </if>
+            <if test="qq != null and qq != ''">
+                and qq = #{qq}
+            </if>
+            <if test="wechat != null and wechat != ''">
+                and wechat = #{wechat}
+            </if>
+        </where>
+    </select>
+
+    <!--新增所有列-->
+    <insert id="insert" keyProperty="uid" useGeneratedKeys="true">
+        insert into t_user(username, password, gender, photo, emai, birthday, phone_num, profile, stat, create_time, update_time, nick_name, qq, wechat)
+        values (#{username}, #{password}, #{gender}, #{photo}, #{emai}, #{birthday}, #{phoneNum}, #{profile}, #{stat}, #{createTime}, #{updateTime}, #{nickName}, #{qq}, #{wechat})
+    </insert>
+
+    <insert id="insertBatch" keyProperty="uid" useGeneratedKeys="true">
+        insert into t_user(username, password, gender, photo, emai, birthday, phone_num, profile, stat, create_time,
+        update_time, nick_name, qq, wechat)
+        values
+        <foreach collection="entities" item="entity" separator=",">
+            (#{entity.username}, #{entity.password}, #{entity.gender}, #{entity.photo}, #{entity.emai},
+            #{entity.birthday}, #{entity.phoneNum}, #{entity.profile}, #{entity.stat}, #{entity.createTime},
+            #{entity.updateTime}, #{entity.nickName}, #{entity.qq}, #{entity.wechat})
+        </foreach>
+    </insert>
+
+    <insert id="insertOrUpdateBatch" keyProperty="uid" useGeneratedKeys="true">
+        insert into t_user(username, password, gender, photo, emai, birthday, phone_num, profile, stat, create_time,
+        update_time, nick_name, qq, wechat)
+        values
+        <foreach collection="entities" item="entity" separator=",">
+            (#{entity.username}, #{entity.password}, #{entity.gender}, #{entity.photo}, #{entity.emai},
+            #{entity.birthday}, #{entity.phoneNum}, #{entity.profile}, #{entity.stat}, #{entity.createTime},
+            #{entity.updateTime}, #{entity.nickName}, #{entity.qq}, #{entity.wechat})
+        </foreach>
+        on duplicate key update
+        username = values(username),
+        password = values(password),
+        gender = values(gender),
+        photo = values(photo),
+        emai = values(emai),
+        birthday = values(birthday),
+        phone_num = values(phone_num),
+        profile = values(profile),
+        stat = values(stat),
+        create_time = values(create_time),
+        update_time = values(update_time),
+        nick_name = values(nick_name),
+        qq = values(qq),
+        wechat = values(wechat)
+    </insert>
+
+    <!--通过主键修改数据-->
+    <update id="update">
+        update t_user
+        <set>
+            <if test="username != null and username != ''">
+                username = #{username},
+            </if>
+            <if test="password != null and password != ''">
+                password = #{password},
+            </if>
+            <if test="gender != null">
+                gender = #{gender},
+            </if>
+            <if test="photo != null and photo != ''">
+                photo = #{photo},
+            </if>
+            <if test="emai != null and emai != ''">
+                emai = #{emai},
+            </if>
+            <if test="birthday != null">
+                birthday = #{birthday},
+            </if>
+            <if test="phoneNum != null">
+                phone_num = #{phoneNum},
+            </if>
+            <if test="profile != null and profile != ''">
+                profile = #{profile},
+            </if>
+            <if test="stat != null">
+                stat = #{stat},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime},
+            </if>
+            <if test="updateTime != null">
+                update_time = #{updateTime},
+            </if>
+            <if test="nickName != null and nickName != ''">
+                nick_name = #{nickName},
+            </if>
+            <if test="qq != null and qq != ''">
+                qq = #{qq},
+            </if>
+            <if test="wechat != null and wechat != ''">
+                wechat = #{wechat},
+            </if>
+        </set>
+        where uid = #{uid}
+    </update>
+
+    <!--通过主键删除-->
+    <delete id="deleteById">
+        delete from t_user where uid = #{uid}
+    </delete>
+
+</mapper>
+
