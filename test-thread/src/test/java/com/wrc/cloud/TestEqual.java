@@ -1,6 +1,5 @@
 package com.wrc.cloud;
 
-import com.sun.javaws.IconUtil;
 import org.junit.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
