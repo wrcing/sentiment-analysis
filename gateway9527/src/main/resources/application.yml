@@ -29,9 +29,9 @@ spring:
 
         - id: sentiment-analysis-2242
           # uri: http://localhost:8001
-          uri: lb://SENTIMENT-ANALYSIS #匹配后提供服务的路由地址,lb为负载均衡的其中一种模式
+          uri: lb://ANALYSIS-MANAGE #匹配后提供服务的路由地址,lb为负载均衡的其中一种模式
           predicates:
-            - Path= /index.html, /static/**, /api/weibo/**, /api/bili/**, /api/total/**
+            - Path= /index.html, /static/**, /api/bili/**, /api/weibo/**, /api/twitter/**
 #            - Path= /**
 
         - id: Auth-2245

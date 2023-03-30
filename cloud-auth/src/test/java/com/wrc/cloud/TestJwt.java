@@ -74,8 +74,14 @@ public class TestJwt {
         // 创建解析器
         JwtParserBuilder jwtParserBuilder = Jwts.parserBuilder();  //jwt解析器
         jwtParserBuilder.setSigningKey(getKey());  //设置签名的密钥
-        Jws<Claims> claimsJws = jwtParserBuilder.build().parseClaimsJws(jwt);//解析内容,获得payload
-
+        Jws<Claims> claimsJws;
+        try {
+            claimsJws = jwtParserBuilder.build().parseClaimsJws(jwt);//解析内容,获得payload
+        }catch (Exception e){
+            e.printStackTrace();
+            System.out.println("no valid jwt");
+            return;
+        }
         System.out.println("头部："+claimsJws.getHeader());
         System.out.println("数据："+claimsJws.getBody());
         System.out.println("签名："+claimsJws.getSignature());

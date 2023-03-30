@@ -34,10 +34,7 @@ public interface BiliReplyService {
     Page<BiliReplyDO> queryByPage(BiliReplyDO tBiliReply, PageRequest pageRequest);
 
     /**
-     * 通过数据量
-     *
-     * @param rpid 主键
-     * @return 实例对象
+     * 有条件地 查询数据量
      */
     Long getCount(BiliReplyPO replyPO);
 
@@ -66,4 +63,6 @@ public interface BiliReplyService {
      */
     int deleteById(BigInteger rpid);
 
+
+    public Long getAnalysisCount(AnalysisPO condition);
 }

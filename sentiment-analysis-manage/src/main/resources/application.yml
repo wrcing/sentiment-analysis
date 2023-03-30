@@ -2,7 +2,7 @@ server:
   port: 2242
 spring:
   application:
-    name: SENTIMENT-ANALYSIS
+    name: ANALYSIS-MANAGE
   cloud:
     nacos:
       discovery:
@@ -48,6 +48,15 @@ spring:
         min-idle: 0
     ## 连接超时时间（毫秒）
     timeout: 1200
+
+  #配置rabbitMq 服务器
+  rabbitmq:
+    host: 127.0.0.1
+    port: 5672
+    username: guest
+    password: guest
+    #虚拟host 可以不设置,使用server默认host
+#    virtual-host: JCcccHost
 
 
 mybatis:

@@ -63,4 +63,29 @@ public class TestEqual {
         System.out.println(b.a.name);
         System.out.println(cloneB.a.name);
     }
+
+    @Test
+    public  void testa(){
+        Integer a1 = 130;
+        int a2 =130;
+        Integer a3 = Integer.valueOf(130);
+        Integer a4  = new Integer(130);
+
+        Integer a5 = 100;
+        Integer a6 = new Integer(130);
+        Integer a7 = 100;
+
+        System.out.println(a1==a2);
+        System.out.println(a1==a3);
+        System.out.println(a3==a4);
+        System.out.println(a2==a4);
+
+        System.out.println(a5==a6);
+        System.out.println("======");
+
+        String str = "admin";
+
+        System.out.println(str=="admin");
+
+    }
 }

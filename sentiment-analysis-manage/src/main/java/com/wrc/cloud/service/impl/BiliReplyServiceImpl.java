@@ -1,6 +1,7 @@
 package com.wrc.cloud.service.impl;
 
 import com.wrc.cloud.DO.BiliReplyDO;
+import com.wrc.cloud.PO.AnalysisPO;
 import com.wrc.cloud.PO.BiliReplyPO;
 import com.wrc.cloud.PO.BiliReplyPicturePO;
 import com.wrc.cloud.dao.BiliReplyDao;
@@ -149,5 +150,12 @@ public class BiliReplyServiceImpl implements BiliReplyService {
     @Override
     public int deleteById(BigInteger rpid) {
         return this.biliReplyDao.deleteById(rpid);
+    }
+
+
+    @Override
+    public Long getAnalysisCount(AnalysisPO condition) {
+        condition.setSiteId(AnalysisPO.BILI_SITE_ID);
+        return biliReplyDao.countAnalysis(condition);
     }
 }

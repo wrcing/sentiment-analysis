@@ -1,5 +1,6 @@
 package com.wrc.cloud.dao;
 
+import com.wrc.cloud.PO.AnalysisPO;
 import com.wrc.cloud.PO.BiliReplyPO;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.data.domain.Pageable;
@@ -72,6 +73,12 @@ public interface BiliReplyDao {
      * @return 影响行数
      */
     int deleteById(BigInteger rpid);
+
+
+    /**
+     * 参数里一定要为 siteId 赋值
+     * */
+    public Long countAnalysis(AnalysisPO condition);
 
 }
 

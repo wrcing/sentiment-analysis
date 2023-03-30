@@ -74,6 +74,12 @@
             <artifactId>druid</artifactId>
         </dependency>
 
+        <!--rabbitmq-->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-amqp</artifactId>
+        </dependency>
+
         <!--日常通用jar包配置-->
         <dependency>
             <groupId>org.springframework.boot</groupId>

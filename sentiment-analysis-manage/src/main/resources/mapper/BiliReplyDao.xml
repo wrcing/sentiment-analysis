@@ -207,5 +207,23 @@
         delete from t_bili_reply where rpid = #{rpid}
     </delete>
 
+
+    <!--统计分析结果数量-->
+    <select id="countAnalysis" resultType="java.lang.Long">
+        select count(*)
+        from t_analysis
+        <where>
+            <if test="siteId != null">
+                site_id = #{siteId}
+            </if>
+            <if test="id != null">
+                id = #{id}
+            </if>
+            <if test="analysis != null and analysis != ''">
+                analysis like CONCAT("%", #{analysis}, "%")
+            </if>
+        </where>
+    </select>
+
 </mapper>
 

@@ -13,6 +13,7 @@ import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.core.Ordered;
 import org.springframework.http.HttpCookie;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.server.reactive.ServerHttpRequest;
@@ -24,6 +25,7 @@ import javax.annotation.Resource;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author : wrc
@@ -39,18 +41,23 @@ public class LoginGateWayFilter implements GlobalFilter, Ordered {
 
         String requestUrl = exchange.getRequest().getPath().value();
         AntPathMatcher pathMatcher = new AntPathMatcher();
-        // 本机单机开发环境用，网关不做检查
-        if (pathMatcher.match("/", requestUrl)) {
+
+        // auth服务所有放行
+        if (pathMatcher.match("/api/auth/**", requestUrl)) {
             return chain.filter(exchange);
         }
-        //1 auth服务所有放行
-        if (pathMatcher.match("/api/auth/login", requestUrl)) {
-            return chain.filter(exchange);
-        }
+
         // 添加数据接口 开放
-        if (pathMatcher.match("/api/weibo/comment", requestUrl) && exchange.getRequest().getMethod().matches("POST")) {
-            return chain.filter(exchange);
+        HttpMethod requestMethod = exchange.getRequest().getMethod();
+        if (requestMethod != null && requestMethod.matches("POST")){
+            if (pathMatcher.match("/api/weibo/comment", requestUrl)
+                    || pathMatcher.match("/api/twitter/comment", requestUrl)
+                    || pathMatcher.match("/api/bili/reply", requestUrl)){
+
+                return chain.filter(exchange);
+            }
         }
+
         if (pathMatcher.match("/api/bili/reply/add", requestUrl)) {
             return chain.filter(exchange);
         }
@@ -67,7 +74,7 @@ public class LoginGateWayFilter implements GlobalFilter, Ordered {
             Claims loginPlayLoad = JwtTokenUtil.getPlayLoad(loginCookie.getValue());
             if (loginPlayLoad != null) {
                 // 已登录
-                log.info(exchange.getRequest().getPath()+"===已有登录cookie的token");
+                log.info(exchange.getRequest().getPath()+"===cookie的token");
                 return chain.filter(exchange);
             }
             else {
@@ -81,6 +88,7 @@ public class LoginGateWayFilter implements GlobalFilter, Ordered {
                         .sameSite("strict")
                         .build();
                 exchange.getResponse().addCookie(cookie);
+                return MonoBuildUtil.buildReturnMono(ResponseResult.error("登录过期"), exchange);
             }
         }
 
@@ -96,13 +104,13 @@ public class LoginGateWayFilter implements GlobalFilter, Ordered {
                 if(resource != null && !resource.equals("")){
                     // token为资源访问token
                     // 放行
-                    log.info(exchange.getRequest().getPath()+"=======header中resourceToken存在");
+                    log.info(exchange.getRequest().getPath()+"====header中resourceToken存在");
                     return chain.filter(exchange);
                 }
             }
         }
         // 无token，不予路由，直接返回
-        return MonoBuildUtil.buildReturnMono(ResponseResult.error("登录过期"),exchange);
+        return MonoBuildUtil.buildReturnMono(ResponseResult.error("未登录"),exchange);
 
     }
 

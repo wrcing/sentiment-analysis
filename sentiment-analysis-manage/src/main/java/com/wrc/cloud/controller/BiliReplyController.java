@@ -3,6 +3,7 @@ package com.wrc.cloud.controller;
 import com.wrc.cloud.DO.BiliReplyDO;
 import com.wrc.cloud.DTO.BiliReplyDTO;
 
+import com.wrc.cloud.PO.AnalysisPO;
 import com.wrc.cloud.PO.BiliReplyPO;
 import com.wrc.cloud.entities.ResponseResult;
 import com.wrc.cloud.service.BiliReplyService;
@@ -34,9 +35,9 @@ public class BiliReplyController {
     /**
      * 返回已有数据量
      * */
-    @GetMapping("/count")
+    @GetMapping("/reply/count")
     public ResponseResult<Long> getCount(){
-        return new ResponseResult(biliReplyService.getCount(new BiliReplyPO()));
+        return ResponseResult.success(biliReplyService.getCount(new BiliReplyPO()));
     }
 
     /**
@@ -51,7 +52,7 @@ public class BiliReplyController {
     /**
      * 编辑数据
      */
-    @PutMapping
+    @PutMapping("/reply")
     public ResponseEntity<Integer> edit(@RequestBody BiliReplyDTO replyDTO) {
         return ResponseEntity.ok(this.biliReplyService.update(new BiliReplyDO(replyDTO)));
     }
@@ -59,7 +60,7 @@ public class BiliReplyController {
     /**
      * 删除数据
      */
-    @DeleteMapping("/delete")
+    @DeleteMapping("/reply")
     public ResponseEntity<Integer> deleteById(BigInteger id) {
         return ResponseEntity.ok(this.biliReplyService.deleteById(id));
     }
@@ -82,7 +83,7 @@ public class BiliReplyController {
     /**
      * 通过主键查询单条数据
      *
-     * @param id 主键
+     * @  主键
      * @return 单条数据
      */
 //    @GetMapping("/{id}")
@@ -90,6 +91,21 @@ public class BiliReplyController {
 //        return ResponseEntity.ok(this.biliReplyService.queryById(id));
 //    }
 
+    @GetMapping("/analysis")
+    public ResponseResult getVideoAnalysis(){
+        return new ResponseResult("not finished");
+    }
+
+
+    @GetMapping("/analysis/count")
+    public ResponseResult<Long> getBiliAnalysisCount(@RequestParam("id") BigInteger id,
+                                                     @RequestParam("analysis") String analysis){
+        AnalysisPO condition = new AnalysisPO();
+        condition.setId(id);
+        condition.setAnalysis(analysis);
+        Long analysisCount = biliReplyService.getAnalysisCount(condition);
+        return ResponseResult.success(analysisCount);
+    }
 
 
 }
