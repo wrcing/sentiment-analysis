@@ -52,13 +52,21 @@ public class LoginGateWayFilter implements GlobalFilter, Ordered {
         if (requestMethod != null && requestMethod.matches("POST")){
             if (pathMatcher.match("/api/weibo/comment", requestUrl)
                     || pathMatcher.match("/api/twitter/comment", requestUrl)
-                    || pathMatcher.match("/api/bili/reply", requestUrl)){
+                    || pathMatcher.match("/api/twitter/user", requestUrl)
+                    || pathMatcher.match("/api/bili/reply", requestUrl)
+            ){
 
                 return chain.filter(exchange);
             }
         }
+        if (requestMethod != null && requestMethod.matches("GET")){
+            if (pathMatcher.match("/api/twitter/comment/whitelist", requestUrl)){
+                return chain.filter(exchange);
+            }
+        }
 
-        if (pathMatcher.match("/api/bili/reply/add", requestUrl)) {
+
+            if (pathMatcher.match("/api/bili/reply/add", requestUrl)) {
             return chain.filter(exchange);
         }
         // 配上nginx后不再需要

@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wrc.cloud.dao.TwitterDao">
+
+    <resultMap type="com.wrc.cloud.PO.TweetPO" id="TweetPOMap">
+        <result property="id" column="id" jdbcType="VARCHAR"/>
+        <result property="source" column="source" jdbcType="VARCHAR"/>
+        <result property="userId" column="user_Id" jdbcType="VARCHAR"/>
+        <result property="conversationId" column="conversation_id" jdbcType="VARCHAR"/>
+        <result property="fullText" column="full_text" jdbcType="VARCHAR"/>
+        <result property="createdAt" column="created_at" jdbcType="TIMESTAMP"/>
+        <result property="catchTime" column="catch_time" jdbcType="TIMESTAMP"/>
+        <result property="bookmarkCount" column="bookmark_count" jdbcType="INTEGER"/>
+        <result property="favoriteCount" column="favorite_count" jdbcType="INTEGER"/>
+        <result property="lang" column="lang" jdbcType="VARCHAR"/>
+        <result property="quoteCount" column="quote_count" jdbcType="INTEGER"/>
+        <result property="replyCount" column="reply_count" jdbcType="INTEGER"/>
+        <result property="retweetCount" column="retweet_count" jdbcType="INTEGER"/>
+        <result property="viewCount" column="view_count" jdbcType="INTEGER"/>
+        <result property="url" column="url" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <resultMap type="com.wrc.cloud.PO.TwitterUserPO" id="TwitterUserPOMap">
+        <result property="id" column="id" jdbcType="VARCHAR"/>
+        <result property="name" column="name" jdbcType="VARCHAR"/>
+        <result property="screenName" column="screen_name" jdbcType="VARCHAR"/>
+        <result property="idStr" column="id_str" jdbcType="VARCHAR"/>
+        <result property="createdAt" column="created_at" jdbcType="TIMESTAMP"/>
+        <result property="description" column="description" jdbcType="VARCHAR"/>
+        <result property="location" column="location" jdbcType="VARCHAR"/>
+        <result property="followersCount" column="followers_count" jdbcType="INTEGER"/>
+        <result property="catchTime" column="catch_time" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <resultMap type="com.wrc.cloud.PO.AnalysisPO" id="AnalysisPOMap">
+        <result property="siteId" column="site_id" jdbcType="INTEGER"/>
+        <result property="id" column="id" jdbcType="VARCHAR"/>
+        <result property="analysis" column="analysis" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <!--新增所有列-->
+    <insert id="insertTweet">
+        insert into t_twitter_comment(id, source, user_id, conversation_id, full_text, created_at, catch_time, bookmark_count, favorite_count, lang, quote_count, reply_count, retweet_count, view_count, url)
+        values (#{id}, #{source}, #{userId}, #{conversationId}, #{fullText}, #{createdAt}, #{catchTime}, #{bookmarkCount}, #{favoriteCount}, #{lang}, #{quoteCount}, #{replyCount}, #{retweetCount}, #{viewCount}, #{url})
+    </insert>
+    <!--查询单个-->
+    <select id="queryTweetById" resultMap="TweetPOMap">
+        select
+          id, source, user_id, conversation_id, full_text, created_at, catch_time, bookmark_count, favorite_count, lang, quote_count, reply_count, retweet_count, view_count, url
+        from t_twitter_comment
+        where id = #{id}
+    </select>
+    <!--通过url 右模糊查 一条！！-->
+    <select id="queryTweetByUrl" resultMap="TweetPOMap">
+        select
+          id, source, user_id, conversation_id, full_text, created_at, catch_time, bookmark_count, favorite_count, lang, quote_count, reply_count, retweet_count, view_count, url
+        from t_twitter_comment
+        where url like CONCAT("%", #{url}, "%")
+        limit 1
+    </select>
+    <!--查询 某贴 所有分析结果-->
+    <select id="queryAnalysisByMainTweetId" resultMap="AnalysisPOMap">
+        SELECT an.id, an.site_id, an.analysis
+        FROM t_twitter_comment co LEFT JOIN t_analysis an ON co.conversation_id={id} AND an.site_id=2 AND co.id=an.id
+        WHERE an.analysis IS NOT NULL
+    </select>
+    <!--通过 text内容&&时间 查询 tweet的内容-->
+    <select id="queryTweetsByTextAndTime" resultMap="TweetPOMap">
+        SELECT co.id, co.conversation_id, co.full_text
+        FROM
+        (select DISTINCT conversation_id
+        from t_twitter_comment
+        where
+        <foreach collection="texts" item="text" separator="OR" open="(" close=")" index="idx">
+            LOWER(full_text) LIKE CONCAT("%", #{text},"%")
+        </foreach>) mainIds
+        LEFT JOIN
+        (SELECT id, conversation_id, full_text, created_at FROM t_twitter_comment) co
+        ON mainIds.conversation_id=co.conversation_id
+        WHERE co.created_at >= #{startTime} and co.created_at <![CDATA[ <= ]]> #{endTime}
+    </select>
+    <!--统计话题id ，通过话题内 tweet爬取时间中 最大的 作为该话题的爬取时间-->
+    <select id="queryConversationIdsByTime" resultMap="TweetPOMap">
+        SELECT co.user_id, co.created_at
+        FROM t_twitter_comment co,
+        (SELECT conversation_id
+        FROM t_twitter_comment
+        GROUP BY conversation_id
+        HAVING MAX(catch_time) >= #{startTime} and MAX(catch_time) <![CDATA[ <= ]]> #{endTime}
+        ) convIds
+        WHERE co.id=co.conversation_id AND co.id=convIds.conversation_id
+    </select>
+    <!--统计总行数-->
+    <select id="countTweet" resultType="java.lang.Long">
+        SELECT COUNT(*)
+        FROM t_twitter_comment
+    </select>
+    <!--统计 分析结果 总行数-->
+    <select id="countTweetAnalysis" resultType="java.lang.Long">
+        SELECT COUNT(*)
+        FROM t_analysis
+        WHERE site_id=2
+    </select>
+
+
+
+
+    <!--新增所有列-->
+    <insert id="insertTwitterUser">
+        insert into t_twitter_user(id, name, screen_name, id_str, created_at, description, location, followers_count, catch_time)
+        values (#{id}, #{name}, #{screenName}, #{idStr}, #{createdAt}, #{description}, #{location}, #{followersCount}, #{catchTime})
+    </insert>
+    <!--查询单个-->
+    <select id="queryUserById" resultMap="TwitterUserPOMap">
+        select
+          id, name, screen_name, id_str, created_at, description, location, followers_count, catch_time
+        from t_twitter_user
+        where id = #{id}
+    </select>
+
+</mapper>
+
