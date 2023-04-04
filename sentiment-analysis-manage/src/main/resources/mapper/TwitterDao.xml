@@ -117,6 +117,21 @@
         from t_twitter_user
         where id = #{id}
     </select>
+    <!--通过主键修改数据-->
+    <update id="updateUserById">
+        update t_twitter_user
+        <set>
+            name = #{name},
+            screen_name = #{screenName},
+            id_str = #{idStr},
+            description = #{description},
+            location = #{location},
+            followers_count = #{followersCount},
+            catch_time = #{catchTime},
+            created_at = #{createdAt}
+        </set>
+        where id = #{id}
+    </update>
 
 </mapper>
 

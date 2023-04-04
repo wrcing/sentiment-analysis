@@ -38,6 +38,15 @@ public class TwitterServiceImpl implements TwitterService {
         else {
             result = 0;
         }
+
+        if (tweet.getId().equals(tweet.getConversationId())){
+            if (result == 0){
+                log.info("重复tweet："+tweet.getUrl());
+            }
+            else {
+                log.info("insert tweet："+tweet.getUrl());
+            }
+        }
         return result;
     }
 
@@ -82,11 +91,16 @@ public class TwitterServiceImpl implements TwitterService {
         return twitterDao.countTweetAnalysis();
     }
 
+    /**
+     * 重大bug：有人改名了，screen_name 是可以改的，奈奈滴，所以用户信息要更新呐！！
+     *          不然的话，通过tweet查出来的用户信息就对不上了
+     * */
     @Override
     public int insertTwitterUser(TwitterUserPO user) {
         user.setCatchTime(new Date());
         int result = -1;
-        if (twitterDao.queryUserById(user.getId()) == null){
+        TwitterUserPO existUser = twitterDao.queryUserById(user.getId());
+        if (existUser == null){
             try {
                 result = twitterDao.insertTwitterUser(user);
             } catch (DuplicateKeyException e){
@@ -94,7 +108,10 @@ public class TwitterServiceImpl implements TwitterService {
             }
         }
         else {
-            result = 0;
+            if (!existUser.equals(user)) {
+                result = twitterDao.updateUserById(user);
+//                log.info("更新用户信息: \n"+ existUser.toString()+ "\n=====>>>\n" +user.toString());
+            }
         }
         return result;
     }

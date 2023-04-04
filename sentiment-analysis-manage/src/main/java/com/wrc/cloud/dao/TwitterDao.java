@@ -68,4 +68,6 @@ public interface TwitterDao {
     int insertTwitterUser(TwitterUserPO user);
 
     TwitterUserPO queryUserById(BigInteger id);
+
+    int updateUserById(TwitterUserPO user);
 }

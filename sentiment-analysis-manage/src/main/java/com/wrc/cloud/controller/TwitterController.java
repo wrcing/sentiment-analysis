@@ -45,7 +45,7 @@ public class TwitterController {
     public ResponseResult<List<String>> getWhiteListConversation(){
         Date currentTime = new Date();
         // 20个小时之内不再爬取
-        Date startTime = new Date(currentTime.getTime() - 1000*3600*24);
+        Date startTime = new Date(currentTime.getTime() - 1000*3600*24*5);
         List<TweetPO> conversations = twitterService.getConversationsByTime(startTime, currentTime);
 
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
