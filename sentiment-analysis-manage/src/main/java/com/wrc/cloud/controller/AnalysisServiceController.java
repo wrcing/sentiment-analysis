@@ -1,10 +1,13 @@
 package com.wrc.cloud.controller;
 
 
+import com.wrc.cloud.DO.BiliReplyDO;
 import com.wrc.cloud.PO.AnalysisPO;
+import com.wrc.cloud.PO.TweetPO;
 import com.wrc.cloud.PO.WeiboCommentPO;
 import com.wrc.cloud.entities.ResponseResult;
 import com.wrc.cloud.service.BiliReplyService;
+import com.wrc.cloud.service.TwitterService;
 import com.wrc.cloud.service.WeiboCommentService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
@@ -28,6 +31,9 @@ public class AnalysisServiceController {
     @Resource
     private BiliReplyService biliReplyService;
 
+    @Resource
+    private TwitterService twitterService;
+
 
     /**
      * 给Python分析使用
@@ -45,6 +51,20 @@ public class AnalysisServiceController {
             }
             return ResponseResult.success(commentPO.getContentRaw());
         }
+        if (AnalysisPO.BILI_SITE_ID.equals(siteId)) {
+            BiliReplyDO biliReply = biliReplyService.queryById(id);
+            if (biliReply == null) {
+                return ResponseResult.error("no such bili reply");
+            }
+            return ResponseResult.success(biliReply.getReply().getMessage());
+        }
+        if (AnalysisPO.TWITTER_SITE_ID.equals(siteId)) {
+            TweetPO tweet = twitterService.queryTweetById(id);
+            if (tweet == null) {
+                return ResponseResult.error("no such tweet");
+            }
+            return ResponseResult.success(tweet.getFullText());
+        }
         return ResponseResult.error("no such site");
     }
 
@@ -58,10 +78,24 @@ public class AnalysisServiceController {
 
         if (AnalysisPO.WEIBO_SITE_ID.equals(analysisPO.getSiteId())){
             int result = weiboCommentService.saveAnalysis(analysisPO);
+            if (result == 0) return ResponseResult.error("insert return 0");
             return  ResponseResult.success(String.valueOf(result));
         }
 
-        return ResponseResult.error("failed");
+        if (AnalysisPO.BILI_SITE_ID.equals(analysisPO.getSiteId())){
+            return ResponseResult.error("bili analysis save api not finished");
+//            int result = biliReplyService(analysisPO);
+//            if (result == 0) return ResponseResult.error("insert return 0");
+//            return  ResponseResult.success(String.valueOf(result));
+        }
+
+        if (AnalysisPO.TWITTER_SITE_ID.equals(analysisPO.getSiteId())){
+            int result = twitterService.insertAnalysis(analysisPO);
+            if (result == 0) return ResponseResult.error("insert return 0");
+            return  ResponseResult.success(String.valueOf(result));
+        }
+
+        return ResponseResult.error("failed, no such site");
     }
 
 

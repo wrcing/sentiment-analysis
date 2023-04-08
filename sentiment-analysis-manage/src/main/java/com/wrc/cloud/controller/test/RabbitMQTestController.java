@@ -40,4 +40,20 @@ public class RabbitMQTestController {
         return ResponseResult.success("ok");
     }
 
+    @GetMapping("/sendmsg-en")
+    public ResponseResult<String> sendDirectMessageEN() {
+        Map<String, Object> map = new HashMap<>();
+        map.put("siteId", AnalysisPO.TWITTER_SITE_ID);
+        map.put("id", "1609019790064074755");
+
+
+        //将消息携带绑定键值：TestDirectRouting 发送到交换机Cloud.AnalysisExchange
+        rabbitTemplate.convertAndSend(
+                "Cloud.AnalysisExchange",
+                "AnalysisOrderRouteEN",
+                map);
+
+        return ResponseResult.success("ok");
+    }
+
 }

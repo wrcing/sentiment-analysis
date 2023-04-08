@@ -8,6 +8,7 @@ import org.apache.ibatis.annotations.Param;
 import java.math.BigInteger;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author : wrc
@@ -61,6 +62,28 @@ public interface TwitterDao {
      * */
     Long countTweet();
     Long countTweetAnalysis();
+
+
+    /**
+     * 保存Analysis
+     * */
+    int insertAnalysis(AnalysisPO analysis);
+
+    AnalysisPO queryAnalysisById(BigInteger id);
+
+    int updateAnalysis(AnalysisPO analysis);
+
+    /**
+     * 每一种情绪的计数
+     * [
+     * {sentiment: happy, num: num1},
+     * {sentiment:   sad, num: num2}
+     * ]
+     * */
+    List<Map<String, Object>> queryAnalysisStatisticCountByKeysAndTime(@Param("startTime") Date startTime,
+                                                                       @Param("endTime") Date endTime,
+                                                                       @Param("texts") List<String> texts);
+
 
     /**
      * 以下为 twitter 用户的操作

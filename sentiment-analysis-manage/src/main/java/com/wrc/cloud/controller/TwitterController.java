@@ -12,10 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.annotation.Resource;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.TimeZone;
+import java.util.*;
 
 /**
  * @author : wrc
@@ -45,7 +42,7 @@ public class TwitterController {
     public ResponseResult<List<String>> getWhiteListConversation(){
         Date currentTime = new Date();
         // 20个小时之内不再爬取
-        Date startTime = new Date(currentTime.getTime() - 1000*3600*24*5);
+        Date startTime = new Date(currentTime.getTime() - 1000*3600*24*20);
         List<TweetPO> conversations = twitterService.getConversationsByTime(startTime, currentTime);
 
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
@@ -88,6 +85,20 @@ public class TwitterController {
             System.out.println(tweet.getFullText());
         }
         return ResponseResult.success(1L);
+    }
+
+    /**
+     * 返回所有符合 主体和时间条件 的tweet分析 的统计数据
+     * */
+    @GetMapping("/analysis/statistic")
+    public ResponseResult<Map<String, Long>> getAnalysisStatisticByKeyAndTime(@Param("key") String key) {
+        List<String> list = new LinkedList<>();
+        list.add(key);
+        Map<String, Long> statisticCount = twitterService.getAnalysisStatisticByKeyAndTime(
+                list,
+                new Date(),
+                3600L * 24 * 200);
+        return ResponseResult.success(statisticCount);
     }
 
 

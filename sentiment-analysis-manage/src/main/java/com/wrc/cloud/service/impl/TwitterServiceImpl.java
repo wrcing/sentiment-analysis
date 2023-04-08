@@ -6,14 +6,13 @@ import com.wrc.cloud.PO.TwitterUserPO;
 import com.wrc.cloud.dao.TwitterDao;
 import com.wrc.cloud.service.TwitterService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.math.BigInteger;
-import java.util.Date;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 /**
  * @author : wrc
@@ -27,27 +26,48 @@ public class TwitterServiceImpl implements TwitterService {
     @Resource
     private TwitterDao twitterDao;
 
+    @Resource
+    private RabbitTemplate rabbitTemplate;
+
     @Override
     public int insertTweet(TweetPO tweet) {
         tweet.setCatchTime(new Date());
-        TweetPO tweetPO = twitterDao.queryTweetById(tweet.getId());
+        TweetPO existedTweet = twitterDao.queryTweetById(tweet.getId());
         int result = -1;
-        if (tweetPO == null){
+        if (existedTweet == null){
             result = twitterDao.insertTweet(tweet);
+            if (result != 1){
+                log.info("tweet insert错误: "+tweet.getUrl());
+            }
+            else {
+                Map<String, Object> map = new HashMap<>();
+                map.put("siteId", AnalysisPO.TWITTER_SITE_ID);
+                map.put("id", tweet.getId());
+                rabbitTemplate.convertAndSend(
+                        "Cloud.AnalysisExchange",
+                        "AnalysisOrderRouteEN", map);
+            }
         }
         else {
             result = 0;
+            if (tweet.getId().equals(tweet.getConversationId())){
+                //  id与url后缀不同，那便是广告
+                if (tweet.getUrl().endsWith(tweet.getId().toString())){
+                    log.info("重复tweet："+tweet.getUrl());
+                }
+//                else{
+//                    log.info("广告: "+tweet.getId().toString()+" url: "+tweet.getUrl() );
+//                }
+            }
         }
 
-        if (tweet.getId().equals(tweet.getConversationId())){
-            if (result == 0){
-                log.info("重复tweet："+tweet.getUrl());
-            }
-            else {
-                log.info("insert tweet："+tweet.getUrl());
-            }
-        }
+
         return result;
+    }
+
+    @Override
+    public TweetPO queryTweetById(BigInteger id) {
+        return twitterDao.queryTweetById(id);
     }
 
     @Override
@@ -87,8 +107,30 @@ public class TwitterServiceImpl implements TwitterService {
     }
 
     @Override
+    public int insertAnalysis(AnalysisPO analysis) {
+        analysis.setCreatedAt(new Date());
+        analysis.setSiteId(AnalysisPO.TWITTER_SITE_ID);
+        if (twitterDao.queryAnalysisById(analysis.getId()) != null){
+            return twitterDao.updateAnalysis(analysis);
+        }
+        return twitterDao.insertAnalysis(analysis);
+    }
+
+    @Override
     public Long countTweetAnalysis() {
         return twitterDao.countTweetAnalysis();
+    }
+
+    @Override
+    public Map<String, Long> getAnalysisStatisticByKeyAndTime(List<String> keyWords, Date datePoint, Long preSeconds) {
+        Date startDate = new Date(datePoint.getTime() - preSeconds*1000);
+        List<Map<String, Object>> list = twitterDao.queryAnalysisStatisticCountByKeysAndTime(startDate, datePoint, keyWords);
+        HashMap<String, Long> result = new HashMap<>();
+        for (Map<String, Object> item : list){
+            item.putIfAbsent("num", 0L);
+            result.put((String) item.get("analysis"), (Long)(item.get("num")));
+        }
+        return  result;
     }
 
     /**

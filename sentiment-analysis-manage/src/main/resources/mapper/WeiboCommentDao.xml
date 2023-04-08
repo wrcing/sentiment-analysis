@@ -21,6 +21,7 @@
         <result property="siteId" column="site_id" jdbcType="INTEGER"/>
         <result property="id" column="id" jdbcType="VARCHAR"/>
         <result property="analysis" column="analysis" jdbcType="VARCHAR"/>
+        <result property="createdAt" column="created_at" jdbcType="TIMESTAMP"/>
     </resultMap>
 
     <!--查询单个-->
@@ -248,7 +249,7 @@
         </where>
     </select>
 
-    <!--新增所有列-->
+    <!--新增Analysis所有列-->
     <insert id="insertAnalysis" keyProperty="id" useGeneratedKeys="false">
         INSERT INTO `t_analysis`
         (`site_id`, `id`, `analysis`)

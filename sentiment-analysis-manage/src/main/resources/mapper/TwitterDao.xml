@@ -36,6 +36,7 @@
         <result property="siteId" column="site_id" jdbcType="INTEGER"/>
         <result property="id" column="id" jdbcType="VARCHAR"/>
         <result property="analysis" column="analysis" jdbcType="VARCHAR"/>
+        <result property="createdAt" column="created_at" jdbcType="TIMESTAMP"/>
     </resultMap>
 
     <!--新增所有列-->
@@ -101,9 +102,48 @@
         FROM t_analysis
         WHERE site_id=2
     </select>
-
-
-
+    <!--新增 Analysis-->
+    <insert id="insertAnalysis">
+        INSERT INTO `t_analysis`
+        (`site_id`, `id`, `analysis`)
+        VALUES
+        (#{siteId}, #{id}, #{analysis})
+    </insert>
+    <!--查询单个 Analysis-->
+    <select id="queryAnalysisById" resultMap="AnalysisPOMap">
+        SELECT `site_id`, `id`, `analysis`
+        FROM `t_analysis`
+        WHERE site_id = 2 AND id = #{id}
+    </select>
+    <!--  更新 analysis  -->
+    <update id="updateAnalysis">
+        update t_analysis
+        <set>
+            <if test="analysis != null and analysis != ''">
+                analysis = #{analysis}
+            </if>
+        </set>
+        where site_id = #{siteId} and id = #{id}
+    </update>
+    <!--通过 text内容&&时间 查询 tweet的内容-->
+    <select id="queryAnalysisStatisticCountByKeysAndTime" resultType="java.util.HashMap">
+        SELECT an.analysis, COUNT(*) as num
+        FROM
+        (select DISTINCT conversation_id
+        from t_twitter_comment
+        where
+        <foreach collection="texts" item="text" separator="OR" open="(" close=")" index="idx">
+            LOWER(full_text) LIKE CONCAT("%", #{text},"%")
+        </foreach>) mainIds
+        LEFT JOIN
+        (SELECT id, conversation_id
+        FROM t_twitter_comment
+        WHERE created_at >= #{startTime} and created_at <![CDATA[ <= ]]> #{endTime}) co
+        ON mainIds.conversation_id=co.conversation_id,
+        (SELECT id, analysis FROM t_analysis WHERE site_id=2) an
+        WHERE co.id=an.id AND co.conversation_id IS NOT NULL
+        GROUP BY an.analysis
+    </select>
 
     <!--新增所有列-->
     <insert id="insertTwitterUser">

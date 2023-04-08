@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import java.math.BigInteger;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author : wrc
@@ -17,17 +18,36 @@ import java.util.List;
 
 public interface TwitterService {
 
+    /**
+     * tweet
+     * */
     int insertTweet(TweetPO tweet);
 
-    List<AnalysisPO> getAllAnalysisByUrl(String url);
+    TweetPO queryTweetById(BigInteger id);
 
     List<TweetPO> getTweetsByTimeAndKeyWords(Date startTime, Date endTime, List<String> keyWords);
 
+    //爬虫去重用的
     List<TweetPO> getConversationsByTime(Date startTime, Date endTime);
 
     Long countTweet();
+
+    /**
+     * analysis
+     * */
+    int insertAnalysis(AnalysisPO analysis);
+
+    List<AnalysisPO> getAllAnalysisByUrl(String url);
+
     Long countTweetAnalysis();
 
+    // 价格预测所需的情绪统计数据，关键词、时间点、时间点以前的时间段
+    // 返回每种情绪的数量
+    Map<String, Long> getAnalysisStatisticByKeyAndTime(List<String> keyWords, Date datePoint, Long preSeconds);
+
+    /**
+     * user
+     * */
     int insertTwitterUser(TwitterUserPO user);
 
     TwitterUserPO getUserById(BigInteger id);

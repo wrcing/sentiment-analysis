@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigInteger;
+import java.util.Date;
 
 /**
  * @author : wrc
@@ -30,6 +31,10 @@ public class AnalysisPO implements Cloneable {
     private BigInteger id;
 
     private String analysis;
+
+    private Date createdAt;
+
+
 
     public AnalysisPO(Integer siteId){
         this.siteId = siteId;
