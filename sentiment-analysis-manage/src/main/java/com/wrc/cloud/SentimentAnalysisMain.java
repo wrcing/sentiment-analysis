@@ -3,6 +3,7 @@ package com.wrc.cloud;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.openfeign.EnableFeignClients;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 /**
  * @author : wrc
@@ -11,6 +12,7 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
  */
 @SpringBootApplication
 @EnableFeignClients
+@EnableScheduling
 public class SentimentAnalysisMain {
     public static void main(String[] args) {
         SpringApplication.run(SentimentAnalysisMain.class, args);

@@ -102,6 +102,12 @@ public class TwitterServiceImpl implements TwitterService {
     }
 
     @Override
+    public List<TweetPO> getTweetsWithoutAnalysis(Date startTime, Date endTime) {
+        if (startTime == null || startTime.after(endTime)) return new LinkedList<>();
+        return twitterDao.queryTweetsWithoutAnalysis(startTime, endTime);
+    }
+
+    @Override
     public Long countTweet() {
         return twitterDao.countTweet();
     }
@@ -123,7 +129,12 @@ public class TwitterServiceImpl implements TwitterService {
 
     @Override
     public Map<String, Long> getAnalysisStatisticByKeyAndTime(List<String> keyWords, Date datePoint, Long preSeconds) {
+        // 处理查询条件
+        for (int i = 0; i < keyWords.size(); i++){
+            keyWords.set(i, keyWords.get(i).toLowerCase());
+        }
         Date startDate = new Date(datePoint.getTime() - preSeconds*1000);
+        // 开始查询并处理结果
         List<Map<String, Object>> list = twitterDao.queryAnalysisStatisticCountByKeysAndTime(startDate, datePoint, keyWords);
         HashMap<String, Long> result = new HashMap<>();
         for (Map<String, Object> item : list){

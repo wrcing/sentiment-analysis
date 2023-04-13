@@ -30,6 +30,9 @@ public interface TwitterService {
     //爬虫去重用的
     List<TweetPO> getConversationsByTime(Date startTime, Date endTime);
 
+    // 获取没有分析过的tweet, Time是tweet的创建时间
+    List<TweetPO> getTweetsWithoutAnalysis(Date startTime, Date endTime);
+
     Long countTweet();
 
     /**
@@ -43,6 +46,7 @@ public interface TwitterService {
 
     // 价格预测所需的情绪统计数据，关键词、时间点、时间点以前的时间段
     // 返回每种情绪的数量
+    // keys 会转化小写
     Map<String, Long> getAnalysisStatisticByKeyAndTime(List<String> keyWords, Date datePoint, Long preSeconds);
 
     /**

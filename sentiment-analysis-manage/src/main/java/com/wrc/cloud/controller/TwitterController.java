@@ -5,7 +5,6 @@ import com.wrc.cloud.PO.TwitterUserPO;
 import com.wrc.cloud.entities.ResponseResult;
 import com.wrc.cloud.service.TwitterService;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.ibatis.annotations.Param;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -71,7 +70,7 @@ public class TwitterController {
      * 返回所有符合 主体和时间条件 的tweet
      * */
     @GetMapping("/analysis")
-    public ResponseResult<Long> getComments(@Param("key") String key) throws ParseException {
+    public ResponseResult<Long> getComments(@RequestParam("key") String key) throws ParseException {
         List<String> list = new LinkedList<>();
         list.add(key);
 
@@ -89,15 +88,23 @@ public class TwitterController {
 
     /**
      * 返回所有符合 主体和时间条件 的tweet分析 的统计数据
+     *
+     * 最小时间间隔 半个小时
      * */
     @GetMapping("/analysis/statistic")
-    public ResponseResult<Map<String, Long>> getAnalysisStatisticByKeyAndTime(@Param("key") String key) {
-        List<String> list = new LinkedList<>();
-        list.add(key);
+    public ResponseResult<Map<String, Long>> getAnalysisStatisticByKeyAndTime(@RequestParam("keys") List<String> keys,
+                                                                              @RequestParam("timePoint") Long timePoint,
+                                                                              @RequestParam("preSeconds") Long seconds) {
+        if (keys == null) keys = new LinkedList<>();
+//        if (keys.size() == 0) keys.add("");
+        if (timePoint == null) timePoint = new Date().getTime();
+        long MinSeconds = 1800L;
+        seconds = Long.max(MinSeconds, seconds);
+
         Map<String, Long> statisticCount = twitterService.getAnalysisStatisticByKeyAndTime(
-                list,
-                new Date(),
-                3600L * 24 * 200);
+                keys,
+                new Date(timePoint),
+                seconds);
         return ResponseResult.success(statisticCount);
     }
 

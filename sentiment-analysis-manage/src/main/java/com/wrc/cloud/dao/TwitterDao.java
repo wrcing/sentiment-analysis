@@ -57,6 +57,10 @@ public interface TwitterDao {
     List<TweetPO> queryConversationIdsByTime(@Param("startTime") Date startTime,
                                             @Param("endTime") Date endTime);
 
+
+    List<TweetPO> queryTweetsWithoutAnalysis(@Param("startTime") Date startTime,
+                                             @Param("endTime") Date endTime);
+
     /**
      * 统计数量
      * */

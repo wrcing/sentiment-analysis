@@ -91,6 +91,18 @@
         ) convIds
         WHERE co.id=co.conversation_id AND co.id=convIds.conversation_id
     </select>
+    <!--查询 妹有分析结果的 tweet-->
+    <select id="queryTweetsWithoutAnalysis" resultMap="TweetPOMap">
+        select co.id, co.created_at, co.catch_time, co.lang
+        from
+        (select id, created_at, catch_time, lang
+        from t_twitter_comment
+        where created_at >= #{startTime} and created_at <![CDATA[ <= ]]> #{endTime}) co
+        left join
+        (select id from t_analysis where site_id=2) an
+        ON co.id=an.id
+        where an.id IS NULL
+    </select>
     <!--统计总行数-->
     <select id="countTweet" resultType="java.lang.Long">
         SELECT COUNT(*)
@@ -105,13 +117,13 @@
     <!--新增 Analysis-->
     <insert id="insertAnalysis">
         INSERT INTO `t_analysis`
-        (`site_id`, `id`, `analysis`)
+        (`site_id`, `id`, `analysis`, `created_at`)
         VALUES
-        (#{siteId}, #{id}, #{analysis})
+        (#{siteId}, #{id}, #{analysis}, #{createdAt})
     </insert>
     <!--查询单个 Analysis-->
     <select id="queryAnalysisById" resultMap="AnalysisPOMap">
-        SELECT `site_id`, `id`, `analysis`
+        SELECT `site_id`, `id`, `analysis`, `created_at`
         FROM `t_analysis`
         WHERE site_id = 2 AND id = #{id}
     </select>
@@ -131,10 +143,12 @@
         FROM
         (select DISTINCT conversation_id
         from t_twitter_comment
-        where
-        <foreach collection="texts" item="text" separator="OR" open="(" close=")" index="idx">
-            LOWER(full_text) LIKE CONCAT("%", #{text},"%")
-        </foreach>) mainIds
+        <if test="texts != null and texts.size() > 0">
+            where
+            <foreach collection="texts" item="text" separator="OR" open="(" close=")" index="idx">
+                LOWER(full_text) LIKE CONCAT("%", #{text},"%")
+            </foreach>
+        </if> ) mainIds
         LEFT JOIN
         (SELECT id, conversation_id
         FROM t_twitter_comment
