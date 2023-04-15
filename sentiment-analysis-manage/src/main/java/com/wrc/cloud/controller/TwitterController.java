@@ -5,7 +5,6 @@ import com.wrc.cloud.PO.TwitterUserPO;
 import com.wrc.cloud.entities.ResponseResult;
 import com.wrc.cloud.service.TwitterService;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -78,7 +77,7 @@ public class TwitterController {
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         Date date1 = format.parse(beginTime);
         Date date2 = new Date();
-        List<TweetPO> result = twitterService.getTweetsByTimeAndKeyWords(date1, date2, list);
+        List<TweetPO> result = twitterService.getTweetsByTimeAndTexts(date1, date2, list);
         System.out.println("result===============================================");
         for (TweetPO tweet : result){
             System.out.println(tweet.getFullText());

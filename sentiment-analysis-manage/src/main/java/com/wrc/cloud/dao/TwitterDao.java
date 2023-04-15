@@ -49,6 +49,11 @@ public interface TwitterDao {
                                            @Param("endTime") Date endTime,
                                            @Param("texts") List<String> texts);
 
+    int saveConversationTweetKeyById(@Param("key") String key,
+                                     @Param("tweetId") BigInteger tweetId);
+
+    long countKeyWithTweetId(@Param("key") String key,
+                             @Param("tweetId") BigInteger tweetId);
 
     /**
      * 查询已有的 conversation id
@@ -84,9 +89,13 @@ public interface TwitterDao {
      * {sentiment:   sad, num: num2}
      * ]
      * */
-    List<Map<String, Object>> queryAnalysisStatisticCountByKeysAndTime(@Param("startTime") Date startTime,
+    List<Map<String, Object>> queryAnalysisStatisticCountByTextsAndTime(@Param("startTime") Date startTime,
                                                                        @Param("endTime") Date endTime,
                                                                        @Param("texts") List<String> texts);
+
+    List<Map<String, Object>> queryAnalysisStatisticCountByKeysAndTime(@Param("startTime") Date startTime,
+                                                                       @Param("endTime") Date endTime,
+                                                                       @Param("keys") List<String> keys);
 
 
     /**

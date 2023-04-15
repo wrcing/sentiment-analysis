@@ -2,13 +2,7 @@ package com.wrc.cloud.test;
 
 import com.wrc.cloud.PO.TweetPO;
 import com.wrc.cloud.service.TwitterService;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit4.SpringRunner;
 
-import javax.annotation.Resource;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -40,7 +34,7 @@ public class TestTwitter {
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         Date date1 = format.parse(beginTime);
         Date date2 = format.parse(endTime);
-        List<TweetPO> result = twitterService.getTweetsByTimeAndKeyWords(date1, date2, list);
+        List<TweetPO> result = twitterService.getTweetsByTimeAndTexts(date1, date2, list);
         System.out.println(result);
     }
 }

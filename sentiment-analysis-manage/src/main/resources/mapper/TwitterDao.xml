@@ -67,18 +67,27 @@
     </select>
     <!--通过 text内容&&时间 查询 tweet的内容-->
     <select id="queryTweetsByTextAndTime" resultMap="TweetPOMap">
-        SELECT co.id, co.conversation_id, co.full_text
+        SELECT co.id, co.conversation_id, co.full_text, co.created_at
         FROM
-        (select DISTINCT conversation_id
-        from t_twitter_comment
-        where
-        <foreach collection="texts" item="text" separator="OR" open="(" close=")" index="idx">
-            LOWER(full_text) LIKE CONCAT("%", #{text},"%")
-        </foreach>) mainIds
-        LEFT JOIN
-        (SELECT id, conversation_id, full_text, created_at FROM t_twitter_comment) co
-        ON mainIds.conversation_id=co.conversation_id
-        WHERE co.created_at >= #{startTime} and co.created_at <![CDATA[ <= ]]> #{endTime}
+        (SELECT id,conversation_id,full_text,created_at
+        FROM t_twitter_comment
+        WHERE created_at >= #{startTime} and created_at <![CDATA[ <= ]]> #{endTime}) co
+        <if test="texts != null and texts.size() > 0">
+            WHERE
+            <foreach collection="texts" item="text" separator="OR" open="(" close=")" index="idx">
+                co.full_text LIKE CONCAT("%", #{text},"%")
+            </foreach>
+        </if>
+    </select>
+    <!--通过主键修改key-->
+    <insert id="saveConversationTweetKeyById">
+        insert into t_tweet_key(`key`, tweet_id)
+        values (#{key}, #{tweetId})
+    </insert>
+    <select id="countKeyWithTweetId" resultType="java.lang.Long">
+        SELECT COUNT(*)
+        FROM t_tweet_key
+        WHERE `key`=#{key} AND tweet_id=#{tweetId}
     </select>
     <!--统计话题id ，通过话题内 tweet爬取时间中 最大的 作为该话题的爬取时间-->
     <select id="queryConversationIdsByTime" resultMap="TweetPOMap">
@@ -138,7 +147,7 @@
         where site_id = #{siteId} and id = #{id}
     </update>
     <!--通过 text内容&&时间 查询 tweet的内容-->
-    <select id="queryAnalysisStatisticCountByKeysAndTime" resultType="java.util.HashMap">
+    <select id="queryAnalysisStatisticCountByTextsAndTime" resultType="java.util.HashMap">
         SELECT an.analysis, COUNT(*) as num
         FROM
         (select DISTINCT conversation_id
@@ -156,6 +165,24 @@
         ON mainIds.conversation_id=co.conversation_id,
         (SELECT id, analysis FROM t_analysis WHERE site_id=2) an
         WHERE co.id=an.id AND co.conversation_id IS NOT NULL
+        GROUP BY an.analysis
+    </select>
+    <!--通过 keys内容&&时间 查询 tweet的内容-->
+    <select id="queryAnalysisStatisticCountByKeysAndTime" resultType="java.util.HashMap">
+        SELECT an.analysis, COUNT(*) as num
+        FROM
+        (select DISTINCT tweet_id
+        from t_tweet_key
+        WHERE
+        <if test="keys != null and keys.size() > 0">
+            <foreach collection="keys" item="key" separator="OR" open="(" close=")" index="idx">
+                `key`=#{key}
+            </foreach>
+        </if> ) mainIds,
+        (SELECT id, conversation_id FROM t_twitter_comment
+        WHERE created_at >= #{startTime} and created_at <![CDATA[ <= ]]> #{endTime}) ids,
+        (SELECT id, analysis FROM t_analysis WHERE site_id=2) an
+        WHERE mainIds.tweet_id=ids.conversation_id AND ids.id=an.id
         GROUP BY an.analysis
     </select>
 

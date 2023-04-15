@@ -25,7 +25,11 @@ public interface TwitterService {
 
     TweetPO queryTweetById(BigInteger id);
 
-    List<TweetPO> getTweetsByTimeAndKeyWords(Date startTime, Date endTime, List<String> keyWords);
+    List<TweetPO> getTweetsByTimeAndTexts(Date startTime, Date endTime, List<String> texts);
+
+    int saveConversationTweetKeyById(String key, BigInteger id);
+
+    long countKeyWithConversationTweetId(String key, BigInteger id);
 
     //爬虫去重用的
     List<TweetPO> getConversationsByTime(Date startTime, Date endTime);

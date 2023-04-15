@@ -5,9 +5,11 @@ import com.wrc.cloud.PO.TweetPO;
 import com.wrc.cloud.PO.TwitterUserPO;
 import com.wrc.cloud.dao.TwitterDao;
 import com.wrc.cloud.service.TwitterService;
+import java.time.Duration;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.dao.DuplicateKeyException;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -28,6 +30,11 @@ public class TwitterServiceImpl implements TwitterService {
 
     @Resource
     private RabbitTemplate rabbitTemplate;
+
+    @Resource
+    private StringRedisTemplate stringRedisTemplate;
+
+    private static final String TWITTER_USER_PREFIX = "twitter:user:";
 
     @Override
     public int insertTweet(TweetPO tweet) {
@@ -81,19 +88,29 @@ public class TwitterServiceImpl implements TwitterService {
      * keyWords 应该全为小写
      * */
     @Override
-    public List<TweetPO> getTweetsByTimeAndKeyWords(Date startTime, Date endTime, List<String> keyWords) {
+    public List<TweetPO> getTweetsByTimeAndTexts(Date startTime, Date endTime, List<String> texts) {
         if (!startTime.before(endTime)){
             return new LinkedList<>();
         }
         //  若要查询某时间段所有的tweet，传一个[""]即可
-        if(keyWords == null || keyWords.isEmpty()){
+        if(texts == null || texts.isEmpty()){
             return new LinkedList<>();
         }
         // 转化为小写
-        for (int i = 0; i < keyWords.size(); i++){
-            keyWords.set(i, keyWords.get(i).toLowerCase());
+        for (int i = 0; i < texts.size(); i++){
+            texts.set(i, texts.get(i).toLowerCase());
         }
-        return twitterDao.queryTweetsByTextAndTime(startTime, endTime, keyWords);
+        return twitterDao.queryTweetsByTextAndTime(startTime, endTime, texts);
+    }
+
+    @Override
+    public int saveConversationTweetKeyById(String key, BigInteger id) {
+        return twitterDao.saveConversationTweetKeyById(key, id);
+    }
+
+    @Override
+    public long countKeyWithConversationTweetId(String key, BigInteger id) {
+        return twitterDao.countKeyWithTweetId(key, id);
     }
 
     @Override
@@ -150,21 +167,29 @@ public class TwitterServiceImpl implements TwitterService {
      * */
     @Override
     public int insertTwitterUser(TwitterUserPO user) {
+        if (user == null || user.getId() == null) return -1;
+        if (Objects.equals(Boolean.FALSE,
+                stringRedisTemplate.opsForValue().setIfAbsent(
+                        TWITTER_USER_PREFIX + user.getId().toString(),
+                        "1",
+                        Duration.ofMinutes(10)))){
+            // 已有id在缓存
+            return 0;
+        }
+
         user.setCatchTime(new Date());
         int result = -1;
         TwitterUserPO existUser = twitterDao.queryUserById(user.getId());
-        if (existUser == null){
+        if (existUser == null) {
+            // 数据库与缓存均无
             try {
                 result = twitterDao.insertTwitterUser(user);
-            } catch (DuplicateKeyException e){
-                log.error("twitter user重复主键值："+user.getId()+", "+user.getCatchTime().toString());
+            } catch (DuplicateKeyException e) {
+                log.error("twitter user重复主键值：" + user.getId() + ", " + user.getCatchTime().toString());
             }
         }
-        else {
-            if (!existUser.equals(user)) {
-                result = twitterDao.updateUserById(user);
-//                log.info("更新用户信息: \n"+ existUser.toString()+ "\n=====>>>\n" +user.toString());
-            }
+        else if (!existUser.equals(user)) {
+            result = twitterDao.updateUserById(user);
         }
         return result;
     }
