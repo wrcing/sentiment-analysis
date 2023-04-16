@@ -24,30 +24,7 @@ import java.time.Duration;
  * @date : 2023/2/11 15:48
  */
 @Configuration
-@EnableCaching
 public class RedisConfig extends CachingConfigurerSupport {
-
-    /**
-     * 选择redis作为默认缓存工具
-     * @param redisConnectionFactory
-     * @return
-     */
-
-    //springboot 1.xx
-//    @Bean
-//    public CacheManager cacheManager(RedisTemplate redisTemplate) {
-//        RedisCacheManager rcm = new RedisCacheManager(redisTemplate);
-//        return rcm;
-//    }
-
-    @Bean
-    public CacheManager cacheManager(RedisConnectionFactory redisConnectionFactory) {
-        RedisCacheConfiguration redisCacheConfiguration = RedisCacheConfiguration.defaultCacheConfig()
-                .entryTtl(Duration.ofHours(1)); // 设置缓存有效期一小时
-        return RedisCacheManager
-                .builder(RedisCacheWriter.nonLockingRedisCacheWriter(redisConnectionFactory))
-                .cacheDefaults(redisCacheConfiguration).build();
-    }
 
     /**
      * retemplate相关配置

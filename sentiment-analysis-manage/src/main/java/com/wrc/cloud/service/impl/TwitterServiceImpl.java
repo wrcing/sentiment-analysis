@@ -8,6 +8,7 @@ import com.wrc.cloud.service.TwitterService;
 import java.time.Duration;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
@@ -145,6 +146,7 @@ public class TwitterServiceImpl implements TwitterService {
     }
 
     @Override
+    @Cacheable(cacheNames = "TwitterService", keyGenerator = "simpleObjAndListKeyGenerator")
     public Map<String, Long> getAnalysisStatisticByKeyAndTime(List<String> keyWords, Date datePoint, Long preSeconds) {
         // 处理查询条件
         for (int i = 0; i < keyWords.size(); i++){

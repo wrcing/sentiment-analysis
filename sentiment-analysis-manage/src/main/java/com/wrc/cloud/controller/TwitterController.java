@@ -1,5 +1,6 @@
 package com.wrc.cloud.controller;
 
+import cn.hutool.core.date.DateUtil;
 import com.wrc.cloud.PO.TweetPO;
 import com.wrc.cloud.PO.TwitterUserPO;
 import com.wrc.cloud.entities.ResponseResult;
@@ -35,13 +36,17 @@ public class TwitterController {
 
     /**
      * 返回 时间+@用户名 格式的键值
+     *
+     * 目前还不需要cache，也没迁移进service
+     * 暂时将逻辑放于此
+     * 如若插件用户增多，可以考虑，但这种自动刷新的功能应该只有rc自己用了，那就没必要再优化了
      * */
     @GetMapping("/comment/whitelist")
-    public ResponseResult<List<String>> getWhiteListConversation(){
-        Date currentTime = new Date();
-        // 20个小时之内不再爬取
-        Date startTime = new Date(currentTime.getTime() - 1000*3600*24*20);
-        List<TweetPO> conversations = twitterService.getConversationsByTime(startTime, currentTime);
+    public ResponseResult<List<String>> getWhiteListConversation(@RequestParam(name = "startTime", required = false) Long start,
+                                                                 @RequestParam(name = "endTime", required = false) Long end){
+        Date startTime = start == null ? DateUtil.parse("2022-12-12 14:42:32") : new Date(start);
+        Date endTime = end == null ? new Date() : new Date(end);
+        List<TweetPO> conversations = twitterService.getConversationsByTime(startTime, endTime);
 
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
         dateFormat.setTimeZone(TimeZone.getTimeZone("GMT+0:00"));

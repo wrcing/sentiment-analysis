@@ -89,16 +89,11 @@
         FROM t_tweet_key
         WHERE `key`=#{key} AND tweet_id=#{tweetId}
     </select>
-    <!--统计话题id ，通过话题内 tweet爬取时间中 最大的 作为该话题的爬取时间-->
+    <!--通过话题创建时间 查询发表话题的userId-->
     <select id="queryConversationIdsByTime" resultMap="TweetPOMap">
-        SELECT co.user_id, co.created_at
-        FROM t_twitter_comment co,
-        (SELECT conversation_id
+        SELECT DISTINCT user_id, created_at
         FROM t_twitter_comment
-        GROUP BY conversation_id
-        HAVING MAX(catch_time) >= #{startTime} and MAX(catch_time) <![CDATA[ <= ]]> #{endTime}
-        ) convIds
-        WHERE co.id=co.conversation_id AND co.id=convIds.conversation_id
+        WHERE id=conversation_id AND created_at >= #{startTime} AND created_at <![CDATA[ <= ]]> #{endTime}
     </select>
     <!--查询 妹有分析结果的 tweet-->
     <select id="queryTweetsWithoutAnalysis" resultMap="TweetPOMap">
