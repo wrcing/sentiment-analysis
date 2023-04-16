@@ -9,7 +9,7 @@ import java.util.Date;
 
 /**
  * @author : wrc
- * @description: TODO
+ * @description: analysis已经不配再称为PO了，由于设计问题，现在决定将analysis直接并入各个网站的评论表中
  * @date : 2023/2/3 19:01
  */
 @Data

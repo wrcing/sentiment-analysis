@@ -75,6 +75,9 @@ public interface TwitterDao {
 
     /**
      * 保存Analysis
+     *
+     * 不得不说这里太sb了，
+     * 为甚么要新建一个库呢？直接把analysis存到tweet的库里，速度嘎嘎的
      * */
     int insertAnalysis(AnalysisPO analysis);
 
