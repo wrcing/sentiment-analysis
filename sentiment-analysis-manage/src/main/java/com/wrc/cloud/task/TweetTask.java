@@ -45,7 +45,7 @@ public class TweetTask {
      * 查出没有分析结果的tweet
      * 将信息发送至MQ
      * */
-    @Scheduled(cron = "0 16 15 * * ?")
+//    @Scheduled(cron = "0 17 23 * * ?")
     public void sendTweetMessageToMQ(){
         Date startCreateTime = DateUtil.parse("2022-12-12 00:00:00");
         Date endCreateTime = new Date();
@@ -82,10 +82,10 @@ public class TweetTask {
     /**
      * 通过预设的key 查出tweet，并给每个查出的tweet打上key的标签
      * */
-    @Scheduled(cron = "0 21 11 * * ?")
+    @Scheduled(cron = "0 55 * * * ?")
     public void updateTweetKeys(){
         Date startCreateTime = DateUtil.parse("2022-12-20 13:46:27");
-        Date endCreateTime = DateUtil.parse("2023-04-01 13:46:27");
+        Date endCreateTime = new Date();
 
         // 一天一天的处理
         while (startCreateTime.before(endCreateTime)){
@@ -93,13 +93,16 @@ public class TweetTask {
             updateTweetKeyDuringTimeSegment(startCreateTime, tmpEndTime);
             startCreateTime = tmpEndTime;
         }
-
+        // 更新tweet_key每个话题的讨论时间段
+        int updateNum = twitterService.updateTweetKeyConversationTimeSlot();
+        log.info("共更新 {}条 讨论所涉及的时间段", (updateNum));
     }
 
     private void updateTweetKeyDuringTimeSegment(Date startCreateTime, Date endCreateTime){
         Set<BigInteger> existedId = new HashSet<>();
+        Long count = 0L;
         for (Map.Entry<String, LinkedList<String>> item : key_texts.entrySet()){
-            // 根据texts查出tweet
+            // 根据texts查出tweet，不会读取全部的行，只要有这个关键字，该tweet所在谈话即被视为该话题
             List<TweetPO> tweets = twitterService.getTweetsByTimeAndTexts(startCreateTime, endCreateTime, item.getValue());
             // 保存对应的key
             for(TweetPO tweet : tweets){
@@ -107,15 +110,19 @@ public class TweetTask {
                     if (twitterService.countKeyWithConversationTweetId(item.getKey(), tweet.getConversationId()) == 0){
                         // 数据库中无数据
                         int result = twitterService.saveConversationTweetKeyById(item.getKey(), tweet.getConversationId());
+                        if (result != 1) log.info("插入问题："+item.toString()+", "+tweet.getConversationId().toString());
+                        else count += 1;
                     }
                     existedId.add(tweet.getConversationId());
                 }
             }
         }
-        log.info("已添加 "+ String.valueOf(existedId.size()) + " 条对话的关键词, "
-                + DateUtil.format(startCreateTime, "yyyy-MM-dd HH:mm:ss.SSS")
-                + " --- "
-                + DateUtil.format(endCreateTime, "yyyy-MM-dd HH:mm:ss.SSS")
-                );
+        if (!count.equals(0L)){
+            log.info("已添加 "+ count.toString() + " 条对话的关键词, "
+                    + DateUtil.format(startCreateTime, "yyyy-MM-dd HH:mm:ss.SSS")
+                    + " --- "
+                    + DateUtil.format(endCreateTime, "yyyy-MM-dd HH:mm:ss.SSS")
+            );
+        }
     }
 }

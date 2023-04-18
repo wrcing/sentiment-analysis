@@ -1,5 +1,6 @@
 package com.wrc.cloud.service.impl;
 
+import com.google.common.collect.Lists;
 import com.wrc.cloud.PO.AnalysisPO;
 import com.wrc.cloud.PO.TweetPO;
 import com.wrc.cloud.PO.TwitterUserPO;
@@ -36,6 +37,9 @@ public class TwitterServiceImpl implements TwitterService {
     private StringRedisTemplate stringRedisTemplate;
 
     private static final String TWITTER_USER_PREFIX = "twitter:user:";
+
+    private static List<String> SENTIMENTS = Lists.newArrayList("surprise", "like", "happy", "sad",
+            "neutral", "angry", "disgust", "fear");
 
     @Override
     public int insertTweet(TweetPO tweet) {
@@ -115,6 +119,11 @@ public class TwitterServiceImpl implements TwitterService {
     }
 
     @Override
+    public int updateTweetKeyConversationTimeSlot() {
+        return twitterDao.updateTweetKeyConversationTimeSlot();
+    }
+
+    @Override
     public List<TweetPO> getConversationsByTime(Date startTime, Date endTime) {
         return twitterDao.queryConversationIdsByTime(startTime, endTime);
     }
@@ -159,6 +168,11 @@ public class TwitterServiceImpl implements TwitterService {
         for (Map<String, Object> item : list){
             item.putIfAbsent("num", 0L);
             result.put((String) item.get("analysis"), (Long)(item.get("num")));
+        }
+        for (String sent : SENTIMENTS){
+            if (!result.containsKey(sent)){
+                result.put(sent, 0L);
+            }
         }
         return  result;
     }

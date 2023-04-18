@@ -31,6 +31,8 @@ public interface TwitterService {
 
     long countKeyWithConversationTweetId(String key, BigInteger id);
 
+    int updateTweetKeyConversationTimeSlot();
+
     //爬虫去重用的
     List<TweetPO> getConversationsByTime(Date startTime, Date endTime);
 

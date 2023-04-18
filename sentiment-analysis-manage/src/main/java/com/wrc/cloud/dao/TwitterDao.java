@@ -55,6 +55,8 @@ public interface TwitterDao {
     long countKeyWithTweetId(@Param("key") String key,
                              @Param("tweetId") BigInteger tweetId);
 
+    int updateTweetKeyConversationTimeSlot();
+
     /**
      * 查询已有的 conversation id
      * 最近一段时间已经爬过的就不在爬了

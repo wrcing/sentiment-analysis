@@ -89,6 +89,14 @@
         FROM t_tweet_key
         WHERE `key`=#{key} AND tweet_id=#{tweetId}
     </select>
+    <update id="updateTweetKeyConversationTimeSlot">
+        UPDATE t_tweet_key tk INNER JOIN
+        (SELECT conversation_id, MIN(created_at) as startT, MAX(created_at) as lastT
+        FROM t_twitter_comment
+        GROUP BY conversation_id) co
+        ON tk.tweet_id=co.conversation_id
+        SET tk.start_time=startT, tk.last_time=lastT
+    </update>
     <!--通过话题创建时间 查询发表话题的userId-->
     <select id="queryConversationIdsByTime" resultMap="TweetPOMap">
         SELECT DISTINCT user_id, created_at
@@ -170,7 +178,8 @@
             <foreach collection="keys" item="key" separator="OR" open="(" close=")" index="idx">
                 `key`=#{key}
             </foreach>
-        </if> ) mainIds
+        </if>
+        AND start_time <![CDATA[ <= ]]> #{endTime} AND last_time >= #{startTime}) mainIds
         INNER JOIN
         (SELECT conversation_id, analysis FROM t_twitter_comment
         WHERE created_at >= #{startTime} and created_at <![CDATA[ <= ]]> #{endTime}
