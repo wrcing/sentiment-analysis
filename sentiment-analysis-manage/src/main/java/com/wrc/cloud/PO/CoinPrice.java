@@ -61,9 +61,9 @@ public class CoinPrice implements Serializable {
     private Date createdAt;
 
 
-    public boolean isPredictedPrice(){
-        if (this.priceType == null) return false;
-        if (this.priceType <= PREDICT_TYPE_MAX) return true;
+    public static boolean isPredictedPrice(CoinPrice price){
+        if (price.priceType == null) return false;
+        if (price.priceType <= PREDICT_TYPE_MAX) return true;
         return false;
     }
 }

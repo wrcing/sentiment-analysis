@@ -62,9 +62,21 @@ public class DirectRabbitConfig {
 
 
 
-//    @Bean
-//    DirectExchange lonelyDirectExchange() {
-//        return new DirectExchange("lonelyDirectExchange");
-//    }
+    /**
+     * 用于 冰糖橙价格分析 的队列
+     * */
+    @Bean
+    public Queue PricePredictQueueBTC(){
+        return new Queue("PricePredictQueueBTC", true);
+    }
+
+    @Bean
+    Binding bindingDirectPricePredictQueueBTC() {
+        //绑定  将队列和交换机绑定, 并设置用于匹配键：TestDirectRouting
+        return BindingBuilder.bind(PricePredictQueueBTC())
+                .to(AnalysisDirectExchange())
+                .with("PricePredictRouteBTC");
+    }
+
 
 }

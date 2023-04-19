@@ -18,7 +18,7 @@
     <!--查询单个-->
     <select id="queryById" resultMap="BtcPriceMap">
         select
-          id, time_point, price_type, predict_time, created_at, open, close, high, low, volume
+          id, time_point, price_type, predict_time, created_at, `open`, `close`, high, low, volume
         from t_btc_price
         where id = #{id}
     </select>
@@ -26,7 +26,7 @@
     <!--查询指定行数据-->
     <select id="queryAllByLimit" resultMap="BtcPriceMap">
         select
-          id, time_point, price_type, predict_time, created_at, open, close, high, low, volume
+          id, time_point, price_type, predict_time, created_at, `open`, `close`, high, low, volume
         from t_btc_price
         <where>
             <if test="id != null">
@@ -45,10 +45,10 @@
                 and created_at = #{createdAt}
             </if>
             <if test="open != null">
-                and open = #{open}
+                and `open` = #{open}
             </if>
             <if test="close != null">
-                and close = #{close}
+                and `close` = #{close}
             </if>
             <if test="high != null">
                 and high = #{high}
@@ -66,14 +66,14 @@
     <!--查询 规定时间段内数据-->
     <select id="queryPricesByTimeAndType" resultMap="BtcPriceMap">
         select
-        id, time_point, price_type, predict_time, created_at, open, close, high, low, volume
+        id, time_point, price_type, predict_time, created_at, `open`, `close`, high, low, volume
         from t_btc_price
         where price_type=#{priceType} and time_point >= #{startTime} and time_point <![CDATA[ <= ]]> #{endTime}
     </select>
     <!--查询 时间点的一条数据-->
     <select id="queryOnePriceByTimeAndType" resultMap="BtcPriceMap">
         select
-        id, time_point, price_type, predict_time, created_at, open, close, high, low, volume
+        id, time_point, price_type, predict_time, created_at, `open`, `close`, high, low, volume
         from t_btc_price
         where price_type=#{priceType} and time_point >= #{timePoint}
         order by time_point
@@ -101,10 +101,10 @@
                 and created_at = #{createdAt}
             </if>
             <if test="open != null">
-                and open = #{open}
+                and `open` = #{open}
             </if>
             <if test="close != null">
-                and close = #{close}
+                and `close` = #{close}
             </if>
             <if test="high != null">
                 and high = #{high}
@@ -120,12 +120,12 @@
 
     <!--新增所有列-->
     <insert id="insert" keyProperty="id" useGeneratedKeys="true">
-        insert into t_btc_price(time_point, price_type, predict_time, created_at, open, close, high, low, volume)
+        insert into t_btc_price(time_point, price_type, predict_time, created_at, `open`, `close`, high, low, volume)
         values (#{timePoint}, #{priceType}, #{predictTime}, #{createdAt}, #{open}, #{close}, #{high}, #{low}, #{volume})
     </insert>
 
     <insert id="insertBatch" keyProperty="id" useGeneratedKeys="true">
-        insert into t_btc_price(time_point, price_type, predict_time, created_at, open, close, high, low, volume)
+        insert into t_btc_price(time_point, price_type, predict_time, created_at, `open`, `close`, high, low, volume)
         values
         <foreach collection="entities" item="entity" separator=",">
         (#{entity.timePoint}, #{entity.priceType}, #{entity.predictTime}, #{entity.createdAt}, #{entity.open}, #{entity.close}, #{entity.high}, #{entity.low}, #{entity.volume})
@@ -150,10 +150,10 @@
                 created_at = #{createdAt},
             </if>
             <if test="open != null">
-                open = #{open},
+                `open` = #{open},
             </if>
             <if test="close != null">
-                close = #{close},
+                `close` = #{close},
             </if>
             <if test="high != null">
                 high = #{high},
