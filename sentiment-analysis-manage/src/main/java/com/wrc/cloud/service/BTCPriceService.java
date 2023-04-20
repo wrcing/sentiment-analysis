@@ -20,6 +20,6 @@ public interface BTCPriceService {
     /**
      * 价格类型为null的话，就返回实际数据
      * */
-    List<CoinPrice> getPricesByTimeAndType(Date startTime, Date endTime, Integer priceType);
+    List<CoinPrice> getPricesByTimeAndType(Date startTime, Date endTime, Integer priceType, Long sepSeconds);
 
 }

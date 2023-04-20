@@ -66,16 +66,6 @@ public class LoginGateWayFilter implements GlobalFilter, Ordered {
         }
 
 
-            if (pathMatcher.match("/api/bili/reply/add", requestUrl)) {
-            return chain.filter(exchange);
-        }
-        // 配上nginx后不再需要
-//        if (pathMatcher.match("/index.html", requestUrl) || pathMatcher.match("/static/**", requestUrl)) {
-//            return chain.filter(exchange);
-//        }
-
-//        log.info(exchange.getRequest().getCookies().toString());
-
         //2 检查cookie登录状态，有登录token则放行（token过期返回是null）
         HttpCookie loginCookie = exchange.getRequest().getCookies().getFirst("token");
         if (loginCookie != null) {
@@ -118,6 +108,13 @@ public class LoginGateWayFilter implements GlobalFilter, Ordered {
             }
         }
         // 无token，不予路由，直接返回
+        exchange.getResponse().addCookie(ResponseCookie.from("resourceToken", "")
+                .maxAge(0L)
+                .httpOnly(true)
+                .secure(true)
+                .path("/")
+                .sameSite("strict")
+                .build());
         return MonoBuildUtil.buildReturnMono(ResponseResult.error("未登录"),exchange);
 
     }

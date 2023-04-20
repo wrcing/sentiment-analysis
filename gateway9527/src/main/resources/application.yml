@@ -31,7 +31,7 @@ spring:
           # uri: http://localhost:8001
           uri: lb://ANALYSIS-MANAGE #匹配后提供服务的路由地址,lb为负载均衡的其中一种模式
           predicates:
-            - Path= /index.html, /static/**, /api/bili/**, /api/weibo/**, /api/twitter/**
+            - Path= /index.html, /static/**, /api/bili/**, /api/weibo/**, /api/twitter/**, /api/btc/**
 #            - Path= /**
 
         - id: Auth-2245

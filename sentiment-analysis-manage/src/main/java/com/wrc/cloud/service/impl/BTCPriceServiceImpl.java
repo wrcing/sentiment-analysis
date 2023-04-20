@@ -5,6 +5,7 @@ import com.wrc.cloud.PO.CoinPrice;
 import com.wrc.cloud.dao.BTCPriceDao;
 import com.wrc.cloud.service.BTCPriceService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
@@ -26,6 +27,7 @@ public class BTCPriceServiceImpl implements BTCPriceService {
     private BTCPriceDao btcPriceDao;
 
     @Override
+    @CacheEvict(value = "BTCPriceService", condition = "btcPrice.isPredictedPrice(btcPrice)", allEntries = true)
     public int saveBTCPrice(CoinPrice btcPrice) {
         // 这里就直接插入把，实在是想不起来什么好方法判断相同，反正预测数据重新生成一遍也不是多耗时
         btcPrice.setCreatedAt(new Date());
@@ -53,7 +55,7 @@ public class BTCPriceServiceImpl implements BTCPriceService {
         if (price == null){
             // 往前10min的价格数据
             List<CoinPrice> prices = btcPriceDao.queryPricesByTimeAndType(new Date(timePoint.getTime() - 1000 * 60 * 10),
-                    timePoint, type);
+                    timePoint, type, null);
             if (!prices.isEmpty()){
                 price = prices.get(0);
                 // 取距离该时间点最近的
@@ -69,11 +71,12 @@ public class BTCPriceServiceImpl implements BTCPriceService {
     }
 
     @Override
-    public List<CoinPrice> getPricesByTimeAndType(Date startTime, Date endTime, Integer priceType) {
+    @Cacheable(cacheNames = "BTCPriceService", keyGenerator = "simpleObjAndListKeyGenerator")
+    public List<CoinPrice> getPricesByTimeAndType(Date startTime, Date endTime, Integer priceType, Long sepSeconds) {
         if (startTime == null) return new LinkedList<>();
         if (endTime == null) endTime = new Date();
         if (startTime.after(endTime)) return new LinkedList<>();
         if (priceType == null) priceType = CoinPrice.BITFINEX_ACTUAL_PRICE_TPYE;
-        return btcPriceDao.queryPricesByTimeAndType(startTime, endTime, priceType);
+        return btcPriceDao.queryPricesByTimeAndType(startTime, endTime, priceType, sepSeconds);
     }
 }

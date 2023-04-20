@@ -33,7 +33,8 @@ public interface BTCPriceDao {
 
     List<CoinPrice> queryPricesByTimeAndType(@Param("startTime") Date startTime,
                                              @Param("endTime") Date endTime,
-                                             @Param("priceType") Integer priceType);
+                                             @Param("priceType") Integer priceType,
+                                             @Param("sepSeconds") Long sepSeconds);
 
     CoinPrice queryOnePriceByTimeAndType(@Param("timePoint") Date timePoint,
                                          @Param("priceType") Integer priceType);

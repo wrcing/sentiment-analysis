@@ -50,12 +50,14 @@ public class BTCPriceController {
      * 获取一段时间的 btc price
      * 要有时间参数
      * 价格类型参数，是预测还是实际，返回 type字段 就行
+     * sepSeconds 两个相邻价格的时间间隔
      * */
     @GetMapping("/prices")
     public ResponseResult<List<CoinPrice>> getBTCPrice(@RequestParam("startTime") Date startTime,
                                                        @RequestParam("endTime") Date endTime,
-                                                       @RequestParam("type") Integer priceType){
-        List<CoinPrice> prices = btcPriceService.getPricesByTimeAndType(startTime, endTime, priceType);
+                                                       @RequestParam("type") Integer priceType,
+                                                       @RequestParam("sepSeconds") Long sepSeconds){
+        List<CoinPrice> prices = btcPriceService.getPricesByTimeAndType(startTime, endTime, priceType, sepSeconds);
         return ResponseResult.success(prices);
     }
 }

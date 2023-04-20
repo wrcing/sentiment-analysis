@@ -69,6 +69,10 @@
         id, time_point, price_type, predict_time, created_at, `open`, `close`, high, low, volume
         from t_btc_price
         where price_type=#{priceType} and time_point >= #{startTime} and time_point <![CDATA[ <= ]]> #{endTime}
+        <if test="sepSeconds != null and sepSeconds > 0">
+            AND (unix_timestamp(time_point)-unix_timestamp(#{startTime}))%#{sepSeconds}=0
+        </if>
+        ORDER BY time_point
     </select>
     <!--查询 时间点的一条数据-->
     <select id="queryOnePriceByTimeAndType" resultMap="BtcPriceMap">
