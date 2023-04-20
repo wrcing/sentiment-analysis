@@ -112,8 +112,9 @@
     </select>
     <!--统计总行数-->
     <select id="countTweet" resultType="java.lang.Long">
-        SELECT COUNT(*)
-        FROM t_twitter_comment
+        select table_rows
+        from information_schema.tables
+        where table_schema='wrc_cloud' AND table_name='t_twitter_comment'
     </select>
     <!--统计 分析结果 总行数-->
     <select id="countTweetAnalysis" resultType="java.lang.Long">
