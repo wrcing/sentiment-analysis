@@ -42,11 +42,14 @@ public class BTCPriceServiceImpl implements BTCPriceService {
         return btcPriceDao.insert(btcPrice);
     }
 
+    /**
+     * 返回的没有null，null转化为空的CoinPrice
+     * */
     @Override
     @Cacheable(cacheNames = "BTCPriceService", keyGenerator = "simpleObjAndListKeyGenerator", unless="#result == null")
     public CoinPrice getOnePriceByTimeAndType(Date timePoint, Integer type) {
         // 查时间点之后（包括该点）的最近的数据
-        CoinPrice price = btcPriceDao.queryOnePriceByTimeAndType(timePoint, type);
+        CoinPrice price = btcPriceDao.queryOnePriceByTimeAndTypeWithLaterData(timePoint, type);
         if (price == null){
             // 往前10min的价格数据
             List<CoinPrice> prices = btcPriceDao.queryPricesByTimeAndType(new Date(timePoint.getTime() - 1000 * 60 * 10),
@@ -57,6 +60,9 @@ public class BTCPriceServiceImpl implements BTCPriceService {
                 for (CoinPrice p : prices){
                     if (price.getTimePoint().before(p.getTimePoint())) price = p;
                 }
+            }
+            else {
+                price = new CoinPrice();
             }
         }
         return price;

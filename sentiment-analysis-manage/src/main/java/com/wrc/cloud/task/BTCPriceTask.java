@@ -38,13 +38,13 @@ public class BTCPriceTask {
     @Scheduled(cron = "5 0 * * * ?")
     public void sendBTCPricePredictRequest(){
         Date lastHourTime = new Date((new Date().getTime() / MILLION_SECONDS_ONE_HOUR ) * MILLION_SECONDS_ONE_HOUR
-                + MILLION_SECONDS_ONE_HOUR);
+                + MILLION_SECONDS_ONE_HOUR + 1);
         Date earlyHourTime = DateUtil.parse("2023-01-01 00:00:00");
 
         Map<String, Object> map = new HashMap<>();
         Long absencePriceNum = 0L;
         while (earlyHourTime.before(lastHourTime)){
-            if (priceService.getOnePriceByTimeAndType(lastHourTime, 0) == null){
+            if (CoinPrice.isEmptyPrice(priceService.getOnePriceByTimeAndType(earlyHourTime, 0))){
                 // 数据库中 无该时间点的预测数据
                 // log.info("无btc价格预测："+DateUtil.format(lastHourTime, "yyyy-MM-dd HH:mm:ss"));
                 absencePriceNum += 1;
@@ -52,16 +52,16 @@ public class BTCPriceTask {
                 map.clear();
                 map.put("realPriceType", CoinPrice.BITFINEX_ACTUAL_PRICE_TPYE);
                 // 要对哪个时间点 做出预测
-                map.put("priceTimePoint", lastHourTime.getTime());
+                map.put("priceTimePoint", earlyHourTime.getTime());
                 // 以哪个时间点的数据做出预测
-                map.put("predictTime", new Date(lastHourTime.getTime() - MILLION_SECONDS_ONE_HOUR));
+                map.put("predictTime", new Date(earlyHourTime.getTime() - MILLION_SECONDS_ONE_HOUR));
 
                 rabbitTemplate.convertAndSend(
                         "Cloud.AnalysisExchange",
                         "PricePredictRouteBTC",
                         map);
             }
-            lastHourTime = new Date(lastHourTime.getTime() - MILLION_SECONDS_ONE_HOUR);
+            earlyHourTime = new Date(earlyHourTime.getTime() + MILLION_SECONDS_ONE_HOUR);
         }
         log.info("缺少 {}个 价格预测数据", absencePriceNum);
     }

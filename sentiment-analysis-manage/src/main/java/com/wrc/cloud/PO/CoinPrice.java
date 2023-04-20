@@ -66,5 +66,10 @@ public class CoinPrice implements Serializable {
         if (price.priceType <= PREDICT_TYPE_MAX) return true;
         return false;
     }
+
+    public static boolean isEmptyPrice(CoinPrice price) {
+        if (price.getId() == null) return true;
+        return false;
+    }
 }
 

@@ -39,6 +39,11 @@ public interface BTCPriceDao {
                                          @Param("priceType") Integer priceType);
 
     /**
+     * 返回该时间点数据，若没有，返回该时间点之后的最近的数据
+     * */
+    CoinPrice queryOnePriceByTimeAndTypeWithLaterData(@Param("timePoint") Date timePoint,
+                                         @Param("priceType") Integer priceType);
+    /**
      * 统计总行数
      */
     long count(CoinPrice btcPrice);

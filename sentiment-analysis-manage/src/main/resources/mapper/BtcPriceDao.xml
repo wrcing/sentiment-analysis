@@ -75,6 +75,13 @@
         select
         id, time_point, price_type, predict_time, created_at, `open`, `close`, high, low, volume
         from t_btc_price
+        where price_type=#{priceType} and time_point = #{timePoint}
+    </select>
+    <!--查询 时间点或该点之后的 一条数据-->
+    <select id="queryOnePriceByTimeAndTypeWithLaterData" resultMap="BtcPriceMap">
+        select
+        id, time_point, price_type, predict_time, created_at, `open`, `close`, high, low, volume
+        from t_btc_price
         where price_type=#{priceType} and time_point >= #{timePoint}
         order by time_point
         limit 1
