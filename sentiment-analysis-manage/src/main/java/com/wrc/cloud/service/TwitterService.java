@@ -54,6 +54,7 @@ public interface TwitterService {
     // 返回每种情绪的数量
     // keys 会转化小写
     Map<String, Long> getAnalysisStatisticByKeyAndTime(List<String> keyWords, Date datePoint, Long preSeconds);
+    Map<String, Long> updateCacheOfGetAnalysisStatisticByKeyAndTime(List<String> keyWords, Date datePoint, Long preSeconds);
 
     /**
      * user

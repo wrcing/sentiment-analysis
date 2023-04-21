@@ -104,4 +104,37 @@ public class CacheConfig {
         };
     }
 
+    @Bean
+    public KeyGenerator simpleObjAndListKeyGeneratorWithoutMethodName(){
+        return new KeyGenerator() {
+            @Override
+            public Object generate(@NonNull Object target,@NonNull Method method,@NonNull Object... params) {
+                String key = "";
+                // 日期放到前面
+                for (Object param : params){
+                    if (param instanceof Date){
+                        key += DateUtil.format((Date) param, "yyyyMMddHHmmss:");
+                    }
+                }
+                for (Object param : params){
+                    if (param instanceof Date) {
+                        continue;
+                    }
+                    if (param instanceof List){
+                        for (Object obj : (List) param){
+                            if (obj instanceof Date){
+                                key += DateUtil.format((Date)obj, "yyyyMMddHHmmss");
+                            }
+                            else key += obj.toString();
+                        }
+                    }
+                    else {
+                        key += param.toString();
+                    }
+                }
+                return key;
+            }
+        };
+    }
+
 }
