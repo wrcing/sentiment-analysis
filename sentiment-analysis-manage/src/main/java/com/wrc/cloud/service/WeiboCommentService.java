@@ -21,7 +21,9 @@ public interface WeiboCommentService {
 
     public int insert(WeiboCommentPO commentPO);
 
-    public Long getCount(WeiboCommentCondition condition);
+    public Integer getCount(WeiboCommentCondition condition);
+
+    public Integer getCount();
 
     /**
      * 以下为分析 管理控制
@@ -29,7 +31,7 @@ public interface WeiboCommentService {
 
     public List<AnalysisDTO> getWeiboBlogAnalysis(WeiboCommentCondition condition);
 
-    public Long getAnalysisCount(AnalysisPO analysisPO);
+    public Integer getAnalysisCount();
 
     public int saveAnalysis(AnalysisPO analysisPO);
 

@@ -155,7 +155,8 @@ public class TwitterServiceImpl implements TwitterService {
     }
 
     @Override
-    @Cacheable(cacheNames = "TwitterService", keyGenerator = "simpleObjAndListKeyGenerator")
+    @Cacheable(cacheNames = "TwitterService", keyGenerator = "simpleObjAndListKeyGenerator",
+            condition = "#preSeconds.compareTo(3600*24)>=0")
     public Map<String, Long> getAnalysisStatisticByKeyAndTime(List<String> keyWords, Date datePoint, Long preSeconds) {
         // 处理查询条件
         for (int i = 0; i < keyWords.size(); i++){

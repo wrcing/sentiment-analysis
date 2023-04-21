@@ -43,18 +43,27 @@ public class WeiboCommentController {
      * 返回已有数据量
      * */
     @GetMapping("/comment/count")
-    public ResponseResult<Long> getCount(@RequestParam String url,
+    public ResponseResult<Integer> getCount(@RequestParam String url,
                                          @RequestParam String location,
                                          @RequestParam Integer minLike,
                                          @RequestParam Integer minReply,
                                          @RequestParam List<Long> timeRange){
+        if ("".equals(url) && "".equals(location) && minLike == null && minReply == null) {
+            boolean allNull = true;
+            for (Long t :timeRange){
+                if (t != null) {
+                    allNull = false;
+                    break;
+                }
+            }
+            if (allNull) return ResponseResult.success(commentService.getCount());
+        }
         WeiboCommentCondition condition = new WeiboCommentCondition();
         condition.setUrl(url);
         condition.setLocation(location);
         condition.setMinLike(minLike);
         condition.setMinReply(minReply);
         condition.setTimeRange(timeRange);
-//        log.info(condition.toString());
         return new ResponseResult<>(commentService.getCount(condition));
     }
 
@@ -75,7 +84,6 @@ public class WeiboCommentController {
         condition.setMinLike(minLike);
         condition.setMinReply(minReply);
         condition.setTimeRange(timeRange);
-//        log.info(condition.toString());
         return ResponseResult.success(commentService.getWeiboBlogAnalysis(condition));
     }
 
@@ -84,8 +92,8 @@ public class WeiboCommentController {
      * 返回已情感分析处理 数据量
      * */
     @GetMapping("/analysis/count")
-    public ResponseResult<Long> getAnalysisCount(){
-        Long analysisCountWeibo = commentService.getAnalysisCount(new AnalysisPO(AnalysisPO.WEIBO_SITE_ID));
+    public ResponseResult<Integer> getAnalysisCount(){
+        Integer analysisCountWeibo = commentService.getAnalysisCount();
         return ResponseResult.success(analysisCountWeibo);
     }
 

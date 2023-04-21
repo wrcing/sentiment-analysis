@@ -28,7 +28,7 @@ public interface WeiboCommentDao {
 
     public WeiboCommentPO queryBlogIdByUrl(String url);
 
-    public long count(WeiboCommentCondition condition);
+    public Long count(WeiboCommentCondition condition);
 
     public int insert(WeiboCommentPO commentPO);
 
@@ -64,7 +64,7 @@ public interface WeiboCommentDao {
 
     public List<AnalysisPO> queryAnalysis(AnalysisPO analysisPO);
 
-    public long countAnalysis(AnalysisPO analysisPO);
+    public Long countAnalysis(AnalysisPO analysisPO);
 
     public int insertAnalysis(AnalysisPO analysisPO);
 

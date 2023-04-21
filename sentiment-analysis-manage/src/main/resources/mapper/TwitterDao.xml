@@ -179,8 +179,9 @@
             <foreach collection="keys" item="key" separator="OR" open="(" close=")" index="idx">
                 `key`=#{key}
             </foreach>
+            AND
         </if>
-        AND start_time <![CDATA[ <= ]]> #{endTime} AND last_time >= #{startTime}) mainIds
+        start_time <![CDATA[ <= ]]> #{endTime} AND last_time >= #{startTime}) mainIds
         INNER JOIN
         (SELECT conversation_id, analysis FROM t_twitter_comment
         WHERE created_at >= #{startTime} and created_at <![CDATA[ <= ]]> #{endTime}

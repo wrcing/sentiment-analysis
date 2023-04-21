@@ -27,6 +27,9 @@ public class TwitterController {
     @Resource
     private TwitterService twitterService;
 
+    private static final Long MAX_TIME_MILLION_SECONDS = DateUtil.parse("3333-12-12 00:00:00").getTime();
+    private static final Long MILLION_SECONDS_OF_ON_DAY = 24*3600*1000L;
+
     @PostMapping("/comment")
     public ResponseResult<Integer> add(@RequestBody TweetPO tweet) {
 //        log.info(tweet.toString());
@@ -100,11 +103,39 @@ public class TwitterController {
                                                                               @RequestParam("timePoint") Long timePoint,
                                                                               @RequestParam("preSeconds") Long seconds) {
         if (keys == null) keys = new LinkedList<>();
-//        if (keys.size() == 0) keys.add("");
-        if (timePoint == null) timePoint = new Date().getTime();
-        long MinSeconds = 1800L;
-        seconds = Long.max(MinSeconds, seconds);
+        // 以分钟为间隔单位
+        timePoint = ((timePoint == null ? new Date().getTime() : timePoint) /1000 /60) * 60*1000L;
+        if (MAX_TIME_MILLION_SECONDS.compareTo(timePoint) < 0) {
+            return ResponseResult.error("timePoint超出限制");
+        }
+        // 最小1800秒
+        seconds = Long.max(1800L, seconds == null ? 0L : seconds);
 
+        if (seconds.compareTo(3600L*24) >= 0){
+            // 1 day 以上，通过分每日小片查，不同查询间可以重复使用缓存
+            Date startTime = new Date(timePoint - seconds * 1000);
+            Date endTime = new Date(timePoint);
+            // 开始的一小段，到当日的24：00
+            Date tmpEnd = new Date(startTime.getTime()/MILLION_SECONDS_OF_ON_DAY*MILLION_SECONDS_OF_ON_DAY
+                    +MILLION_SECONDS_OF_ON_DAY);
+            Map<String, Long> result = new HashMap<>();
+            // 一日为一个单位,00:00-->00:00，(百京时间8:00-->8:00)两头的小段单独查
+            while (startTime.before(endTime)){
+                Map<String, Long> tmpResult = twitterService.getAnalysisStatisticByKeyAndTime(
+                        keys,
+                        tmpEnd,
+                        (tmpEnd.getTime() - startTime.getTime()) / 1000);
+                for (Map.Entry<String, Long> item : tmpResult.entrySet()){
+                    Long baseValue = result.get(item.getKey());
+                    result.put(item.getKey(), (baseValue == null ? 0L: baseValue) + item.getValue());
+                }
+
+                startTime.setTime(tmpEnd.getTime());
+                tmpEnd.setTime(Math.min(tmpEnd.getTime() + MILLION_SECONDS_OF_ON_DAY, endTime.getTime()));
+            }
+            return ResponseResult.success(result);
+        }
+        // 小范围的单个查询，正常逻辑
         Map<String, Long> statisticCount = twitterService.getAnalysisStatisticByKeyAndTime(
                 keys,
                 new Date(timePoint),

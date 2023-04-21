@@ -12,6 +12,7 @@ import com.wrc.cloud.service.WeiboCommentService;
 import com.wrc.cloud.util.WrcURLUtil;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -77,10 +78,15 @@ public class WeiboCommentServiceImpl implements WeiboCommentService {
     }
 
     @Override
-    public Long getCount(WeiboCommentCondition condition) {
-        return commentDao.count(condition);
+    public Integer getCount(WeiboCommentCondition condition) {
+        return commentDao.count(condition).intValue();
     }
 
+    @Override
+    @Cacheable(cacheNames = "WeiboCommentService", key = "#root.methodName.concat(':noargs')")
+    public Integer getCount() {
+        return commentDao.count(new WeiboCommentCondition()).intValue();
+    }
 
     /**
      * 耗时，要cache结果，5秒更新cache
@@ -139,8 +145,11 @@ public class WeiboCommentServiceImpl implements WeiboCommentService {
 
 
     @Override
-    public Long getAnalysisCount(AnalysisPO analysisPO) {
-        return commentDao.countAnalysis(analysisPO);
+    @Cacheable(cacheNames = "WeiboCommentService", key = "#root.methodName.concat(':noargs')")
+    public Integer getAnalysisCount() {
+        AnalysisPO analysisPO = new AnalysisPO();
+        analysisPO.setSiteId(AnalysisPO.WEIBO_SITE_ID);
+        return commentDao.countAnalysis(analysisPO).intValue();
     }
 
     @Override
@@ -159,6 +168,7 @@ public class WeiboCommentServiceImpl implements WeiboCommentService {
     }
 
     @Override
+    @Cacheable(cacheNames = "WeiboCommentService", key = "#root.methodName.concat(':noargs')")
     public List getStatisticInfo() {
         return commentDao.getStatisticInfo(AnalysisPO.WEIBO_SITE_ID);
     }
