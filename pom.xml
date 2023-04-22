@@ -15,7 +15,6 @@
         <module>crawler</module>
         <module>gateway9527</module>
         <module>sentiment-analysis-manage</module>
-        <module>test-thread</module>
         <module>cloud-auth</module>
     </modules>
 
