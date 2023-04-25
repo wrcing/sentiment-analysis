@@ -29,6 +29,7 @@
         <mysql.version>8.0.29</mysql.version>
         <druid.version>1.2.15</druid.version>
         <mybatis.spring.boot.version>2.1.1</mybatis.spring.boot.version>
+        <springboot.maven.plugin.version>2.3.12.RELEASE</springboot.maven.plugin.version>
     </properties>
 
     <!-- 子模块继承之后，提供作用：
@@ -131,19 +132,7 @@
         </repository>
     </repositories>
 
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
-                <configuration>
-                    <addResources>true</addResources>
-<!--                    <fork>true</fork>-->
-                </configuration>
-                <version>2.3.12.RELEASE</version>
-            </plugin>
-        </plugins>
-    </build>
+
 
 
 </project>
