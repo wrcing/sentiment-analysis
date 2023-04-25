@@ -1,0 +1,2 @@
+本文件夹存放cloud-sentiment的docker部署文件
+不包括mysql、nacos等，仅有后端的服务

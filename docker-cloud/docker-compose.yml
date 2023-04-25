@@ -1,0 +1,115 @@
+version: '3.1'
+# 数据保存到/data/cloud-sent
+services:
+  mysql:
+    image: mysql:8.0.17
+    restart: always
+    container_name: mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: wrc8848
+      TZ: Asia/Shanghai
+    command:
+      --default-authentication-plugin=mysql_native_password
+      --character-set-server=utf8mb4
+      --collation-server=utf8mb4_general_ci
+      --explicit_defaults_for_timestamp=true
+      --lower_case_table_names=1
+    ports:
+      - 3306:3306
+    volumes:
+      - ../data/mysql_data:/var/lib/mysql
+      # 初始化
+      # - ./mysql/init/:/docker-entrypoint-initdb.d/
+      # 挂挂载配置文件
+      - ./mysql/conf:/etc/mysql/conf.d
+      # 挂载日志
+      - ./mysql/logs:/logs
+      # 挂载数据
+      - ./mysql/data:/var/lib/mysql
+
+    networks:
+      - cloud-sent
+
+  redis:
+    image: registry.cn-shenzhen.aliyuncs.com/mogublog/redis
+    restart: always
+    container_name: redis
+    ports:
+      - 6379:6379
+    command: redis-server --requirepass mogu2018 --appendonly yes # 启动redis服务并添加密码为：mogu2018,并开启redis持久化配置
+    volumes:
+      - ../data/redis_data:/data
+    networks:
+      - cloud-sent
+
+  rabbitmq:
+    restart: always
+    image: registry.cn-shenzhen.aliyuncs.com/mogublog/rabbitmq
+    container_name: rabbitmq
+    ports:
+      - 5672:5672
+      - 15672:15672
+    environment:
+      TZ: Asia/Shanghai
+      RABBITMQ_DEFAULT_USER: admin
+      RABBITMQ_DEFAULT_PASS: mogu2018
+    volumes:
+      - ../data/rabbitmq_data:/var/lib/rabbitmq/mnesia
+    networks:
+      - cloud-sent
+
+  nacos:
+    image: registry.cn-shenzhen.aliyuncs.com/mogublog/nacos-server
+    container_name: nacos
+    env_file:
+      - ./nacos/nacos-config.env
+    volumes:
+      - ../log/nacos/:/home/nacos/logs
+      - ./nacos/custom.properties:/home/nacos/init.d/custom.properties
+    ports:
+      - "8848:8848"
+      - "9555:9555"
+    restart: always
+    networks:
+      - cloud-sent
+
+  sentiment-analysis-manage:
+    build: #启动服务时，先将build中指定的dockerfile打包成镜像，再运行该镜像
+      context: ../sentiment-analysis-manage #指定上下文目录dockerfile所在目录[相对、绝对路径都可以]
+      dockerfile: ../sentiment-analysis-manage/Dockerfile #文件名称[在指定的context的目录下指定那个Dockerfile文件名称]
+    container_name: sentiment-analysis-manage
+    env_file:
+      - ../docker-env
+    volumes:
+      -
+    ports:
+      - 2242:2242
+    restart: always
+    networks:
+      - cloud-sent
+
+
+networks:
+  cloud-sent:
+    external: true
+
+
+
+
+#  jenkins_docker:
+#    image: jenkins/jenkins:lts
+#    restart: always
+#    user: root
+#    container_name: jenkins
+#    ports:
+#      - 8088:8080
+#      - 50000:50000
+#    privileged: true
+#    volumes:
+#      - /var/vol_dockers/jenkins_home/:/var/jenkins_home
+#      - /usr/local/java/jdk1.8.0_181:/usr/local/java
+#      - /usr/local/maven/apache-maven-3.6.3:/usr/local/maven
+#      - /usr/local/git:/usr/local/git
+#      - /etc/localtime:/etc/localtime
+#      - /var/run/docker.sock:/var/run/docker.sock
+#      - /usr/bin/docker:/usr/bin/docker
