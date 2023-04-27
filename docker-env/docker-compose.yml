@@ -89,7 +89,7 @@ services:
       - ./nginx/conf/nginx.conf:/etc/nginx/nginx.conf
       - ./nginx/conf/conf.d/:/etc/nginx/conf.d/ #/etc/nginx/conf.d/default.conf
       - ./nginx/cert:/home/cert # HTTPS证书目录挂载到容器的home目录下
-      - /home/www/dist:/home/www  # 挂载宿主机上的www目录到容器里的home目录下方便发布web项目
+      - /home/www/dist:/home/www/dist  # 挂载宿主机上的www目录到容器里的home目录下方便发布web项目
       - /home/www/picture:/home/www/picture
       - ./nginx/logs:/var/log/nginx # 把容器内的Nginx日志目录挂载到宿主机
       - /etc/localtime:/etc/localtime:ro #配置容器时间同步
