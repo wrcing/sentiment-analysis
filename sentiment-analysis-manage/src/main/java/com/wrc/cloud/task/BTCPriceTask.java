@@ -42,9 +42,10 @@ public class BTCPriceTask {
         Date earlyHourTime = DateUtil.parse("2023-01-01 00:00:00");
 
         Map<String, Object> map = new HashMap<>();
-        Long absencePriceNum = 0L;
+        long absencePriceNum = 0L;
         while (earlyHourTime.before(lastHourTime)){
-            if (CoinPrice.isEmptyPrice(priceService.getOnePriceByTimeAndType(earlyHourTime, 0))){
+            // 真的从数据库中读取，非缓存
+            if (CoinPrice.isEmptyPrice(priceService.getOnePriceByTimeAndTypeWithCacheUpdate(earlyHourTime, 0))){
                 // 数据库中 无该时间点的预测数据
                 // log.info("无btc价格预测："+DateUtil.format(lastHourTime, "yyyy-MM-dd HH:mm:ss"));
                 absencePriceNum += 1;

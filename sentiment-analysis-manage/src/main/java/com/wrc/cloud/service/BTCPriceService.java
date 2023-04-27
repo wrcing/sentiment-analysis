@@ -15,6 +15,7 @@ public interface BTCPriceService {
     int saveBTCPrice(CoinPrice btcPrice);
 
     CoinPrice getOnePriceByTimeAndType(Date timePoint, Integer type);
+    CoinPrice getOnePriceByTimeAndTypeWithCacheUpdate(Date timePoint, Integer type);
 
 
     /**

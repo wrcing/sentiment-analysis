@@ -6,6 +6,7 @@ import com.wrc.cloud.dao.BTCPriceDao;
 import com.wrc.cloud.service.BTCPriceService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
@@ -48,7 +49,9 @@ public class BTCPriceServiceImpl implements BTCPriceService {
      * 返回的没有null，null转化为空的CoinPrice
      * */
     @Override
-    @Cacheable(cacheNames = "BTCPriceService", keyGenerator = "simpleObjAndListKeyGenerator", unless="#result == null")
+    @Cacheable(cacheNames = "BTCPriceService:price",
+            keyGenerator = "simpleObjAndListKeyGeneratorWithoutMethodName",
+            unless="#result == null")
     public CoinPrice getOnePriceByTimeAndType(Date timePoint, Integer type) {
         // 查时间点之后（包括该点）的最近的数据
         CoinPrice price = btcPriceDao.queryOnePriceByTimeAndTypeWithLaterData(timePoint, type);
@@ -68,6 +71,13 @@ public class BTCPriceServiceImpl implements BTCPriceService {
             }
         }
         return price;
+    }
+    @Override
+    @CachePut(cacheNames = "BTCPriceService:price",
+            keyGenerator = "simpleObjAndListKeyGeneratorWithoutMethodName",
+            unless="#result == null")
+    public CoinPrice getOnePriceByTimeAndTypeWithCacheUpdate(Date timePoint, Integer type) {
+        return getOnePriceByTimeAndType(timePoint, type);
     }
 
     @Override
