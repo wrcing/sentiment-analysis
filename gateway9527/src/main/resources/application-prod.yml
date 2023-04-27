@@ -1,0 +1,29 @@
+server:
+  port: 9527
+spring:
+  application:
+    name: CLOUD-GATEWAY
+  cloud:
+    nacos:
+      discovery:
+        server-addr: http://nacos:8848/
+    #############################新增网关配置###########################
+    gateway:
+      discovery:
+        locator:
+          enabled: true #开启从注册中心动态创建路由的功能，利用微服务名进行路由
+      routes:
+        - id: sentiment-analysis-2242
+          uri: lb://ANALYSIS-MANAGE #匹配后提供服务的路由地址,lb为负载均衡的其中一种模式
+          predicates:
+            - Path= /index.html, /static/**, /api/bili/**, /api/weibo/**, /api/twitter/**, /api/btc/**
+
+        - id: Auth-2245
+          uri: lb://CLOUD-AUTH
+          predicates:
+            - Path= /api/auth/**
+
+  ####################################################################
+  #  解决某些错误,启动覆盖
+  main:
+    allow-bean-definition-overriding: true

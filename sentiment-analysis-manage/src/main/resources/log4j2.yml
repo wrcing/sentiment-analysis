@@ -14,8 +14,8 @@ Configuration:
       - name: log.level.console
         value: info
       - name: log.path
-#        value: ./${project.name}_log
-        value: D:/log/cloud/${project.name}_log
+        value: ./log_cloud/${project.name}
+#        value: D:/log/cloud/${project.name}_log
       - name: project.name
         value: daily
       - name: log.pattern
