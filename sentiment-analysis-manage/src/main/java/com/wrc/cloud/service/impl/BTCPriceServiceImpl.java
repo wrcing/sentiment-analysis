@@ -35,7 +35,11 @@ public class BTCPriceServiceImpl implements BTCPriceService {
         if (CoinPrice.isPredictedPrice(btcPrice) && btcPrice.getPredictTime() == null){
             return -2;
         }
-        if (btcPriceDao.queryOnePriceByTimeAndType(btcPrice.getTimePoint(), btcPrice.getPriceType()) != null){
+        CoinPrice existPrice = btcPriceDao.queryOnePriceByTimeAndType(btcPrice.getTimePoint(), btcPrice.getPriceType());
+        if (CoinPrice.isSamePrice(existPrice, btcPrice)){
+            // 更新
+            btcPrice.setId(existPrice.getId());
+            btcPriceDao.update(btcPrice);
             // 库中已有 该时间点、该类型的 数据
             log.info("price 已有数据："
                     + DateUtil.format(btcPrice.getTimePoint(), "yyyy-MM-dd HH:mm:ss")

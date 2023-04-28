@@ -71,5 +71,18 @@ public class CoinPrice implements Serializable {
         if (price.getId() == null) return true;
         return false;
     }
+
+    public static boolean isSamePrice(CoinPrice existPrice, CoinPrice price) {
+        if (existPrice == null || price == null) return false;
+        if (!existPrice.getTimePoint().equals(price.getTimePoint())
+                || !existPrice.getPriceType().equals(price.getPriceType())) return false;
+        // 时间点 与 价格类型 已经相同
+        // 均不为预测类型
+        if (existPrice.getPredictTime() == null && price.getPredictTime() == null) return true;
+        // 不全为预测类型，或预测的时间不同
+        if (existPrice.getPredictTime() == null) return false;
+        if (existPrice.getPredictTime().equals(price.getPredictTime())) return true;
+        return false;
+    }
 }
 
