@@ -28,7 +28,6 @@ public class BTCPriceServiceImpl implements BTCPriceService {
     private BTCPriceDao btcPriceDao;
 
     @Override
-    @CacheEvict(value = "BTCPriceService", condition = "btcPrice.isPredictedPrice(btcPrice)", allEntries = true)
     public int saveBTCPrice(CoinPrice btcPrice) {
         // 这里就直接插入把，实在是想不起来什么好方法判断相同，反正预测数据重新生成一遍也不是多耗时
         btcPrice.setCreatedAt(new Date());
